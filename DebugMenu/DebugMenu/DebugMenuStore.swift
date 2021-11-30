@@ -7,7 +7,7 @@ public struct DebugSubmenuAction {
 }
 
 public enum DebugActionType {
-    case toggle(action: UserDefaultsToggleAction)
+    case toggle(action: DebugToggleAction)
     case button(title: String, action: () -> Void)
     case submenu(action: DebugSubmenuAction)
 }
@@ -19,7 +19,7 @@ public protocol DebugMenuDataSource {
 
 public class DebugMenuStore: ObservableObject, DebugMenuDataSource {
 
-    static let shared = DebugMenuStore()
+    public static let shared = DebugMenuStore()
 
     @Published private var debugActions: [DebugActionType]
 
