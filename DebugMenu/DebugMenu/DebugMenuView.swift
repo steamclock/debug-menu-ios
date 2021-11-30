@@ -12,7 +12,7 @@ public struct DebugMenuView: View {
 
     private var dataSource: DebugMenuDataSource
 
-    init(dataSource: DebugMenuDataSource) {
+    public init(dataSource: DebugMenuDataSource = DebugMenuStore.shared) {
         self.dataSource = dataSource
     }
 
@@ -46,6 +46,6 @@ public struct DebugMenuView: View {
 
 struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
-        DebugMenuView(dataSource: DebugMenuStore.shared)
+        DebugMenuView()
     }
 }
