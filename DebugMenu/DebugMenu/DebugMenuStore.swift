@@ -1,17 +1,24 @@
 import Combine
 import Foundation
 
-public class DebugMenuStore: ObservableObject, DebugMenuDataSource {
+public class DebugMenuStore: BaseDebugDataSource {
 
     public static let shared = DebugMenuStore()
 
-    public var navigationTitle: String {
+    init() {
+        super.init(actions: [])
+    }
+}
+
+open class BaseDebugDataSource: DebugMenuDataSource {
+
+    open var navigationTitle: String {
         "Debug Menu"
     }
 
     public private(set) var actions: [DebugActionType]
 
-    public init(actions: [DebugActionType] = []) {
+    public init(actions: [DebugActionType]) {
         self.actions = actions
     }
 
