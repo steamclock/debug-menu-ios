@@ -18,15 +18,19 @@ public struct DebugMenuView: View {
 
     public var body: some View {
         let options = dataSource.actions.map({ actionTypeToAnyView($0) })
-        if !options.isEmpty {
-            List {
-                ForEach(0..<options.count) { index in
-                    options[index]
+        NavigationView {
+            if !options.isEmpty {
+                List {
+                    ForEach(0..<options.count) { index in
+                        options[index]
+                    }
                 }
+                .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
+            } else {
+                Text("No debug options set!")
+                    .font(.system(size: 20, weight: .semibold))
+                    .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
             }
-        } else {
-            Text("No debug options set!")
-                .font(.system(size: 20, weight: .semibold))
         }
     }
 
@@ -37,9 +41,7 @@ public struct DebugMenuView: View {
         case .button(let title, let action):
             return AnyView(DebugButtonRow(title: title, action: action))
         case .submenu(let action):
-            return AnyView(DebugButtonRow(title: action.title, action: {
-                print("push to screen")
-            }, showChevron: true))
+            return AnyView(DebugSubmenuButtonRow(action: action))
         }
     }
 }
