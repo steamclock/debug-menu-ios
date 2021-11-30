@@ -11,6 +11,7 @@
 		D23CE6E427557FC8006F6209 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23CE6E327557FC8006F6209 /* ContentView.swift */; };
 		D23CE6E627557FCA006F6209 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D23CE6E527557FCA006F6209 /* Assets.xcassets */; };
 		D23CE6E927557FCA006F6209 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D23CE6E827557FCA006F6209 /* Preview Assets.xcassets */; };
+		D2B47CF727558B840053D1EA /* DebugMenu in Frameworks */ = {isa = PBXBuildFile; productRef = D2B47CF627558B840053D1EA /* DebugMenu */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D2B47CF727558B840053D1EA /* DebugMenu in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +85,9 @@
 			dependencies = (
 			);
 			name = DebugMenuExample;
+			packageProductDependencies = (
+				D2B47CF627558B840053D1EA /* DebugMenu */,
+			);
 			productName = DebugMenuExample;
 			productReference = D23CE6DE27557FC8006F6209 /* DebugMenuExample.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +116,9 @@
 				Base,
 			);
 			mainGroup = D23CE6D527557FC8006F6209;
+			packageReferences = (
+				D2B47CF527558B840053D1EA /* XCRemoteSwiftPackageReference "debug-menu-ios" */,
+			);
 			productRefGroup = D23CE6DF27557FC8006F6209 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -343,6 +351,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D2B47CF527558B840053D1EA /* XCRemoteSwiftPackageReference "debug-menu-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "file:///Users/alejandrozielinsky/iOSProjects/debug-menu-ios";
+			requirement = {
+				branch = "az/1-datasource";
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D2B47CF627558B840053D1EA /* DebugMenu */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D2B47CF527558B840053D1EA /* XCRemoteSwiftPackageReference "debug-menu-ios" */;
+			productName = DebugMenu;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D23CE6D627557FC8006F6209 /* Project object */;
 }

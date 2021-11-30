@@ -6,11 +6,19 @@
 //
 
 import SwiftUI
+import DebugMenu
 
 struct ContentView: View {
+
+    @State var showDebugMenu = false
+
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        Button("Debug Menu Entry Point") {
+            showDebugMenu = true
+        }
+        .sheet(isPresented: $showDebugMenu) {
+            DebugMenuView()
+        }
     }
 }
 
