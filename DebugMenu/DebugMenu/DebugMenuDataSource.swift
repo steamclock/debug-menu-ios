@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DebugMenuDataSource.swift
 //  
 //
 //  Created by Alejandro Zielinsky on 2021-11-30.
@@ -16,5 +16,5 @@ public enum DebugActionType {
 public protocol DebugMenuDataSource: AnyObject {
     var navigationTitle: String { get }
     var actions: [DebugActionType] { get }
-    func addActions(_ actions: [DebugActionType])
+    func addAction(_ action: DebugActionType)
 }

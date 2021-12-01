@@ -1,5 +1,5 @@
 //
-//  SwiftUIView.swift
+//  DebugMenuView.swift
 //  
 //
 //  Created by Alejandro Zielinsky on 2021-11-29.

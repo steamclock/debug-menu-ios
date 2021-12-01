@@ -5,9 +5,6 @@ public class DebugMenuStore: BaseDebugDataSource {
 
     public static let shared = DebugMenuStore()
 
-    init() {
-        super.init(actions: [])
-    }
 }
 
 open class BaseDebugDataSource: DebugMenuDataSource {
@@ -18,11 +15,11 @@ open class BaseDebugDataSource: DebugMenuDataSource {
 
     public private(set) var actions: [DebugActionType]
 
-    public init(actions: [DebugActionType]) {
+    public init(actions: [DebugActionType] = []) {
         self.actions = actions
     }
 
-    public func addActions(_ actions: [DebugActionType]) {
-        self.actions.append(contentsOf: actions)
+    public func addAction(_ action: DebugActionType) {
+        self.actions.append(action)
     }
 }
