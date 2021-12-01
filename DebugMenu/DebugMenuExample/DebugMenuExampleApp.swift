@@ -12,16 +12,25 @@ import DebugMenu
 struct DebugMenuExampleApp: App {
 
     init() {
-        DebugMenuStore.shared.addActions([
-            .toggle(action: DebugToggleAction(title: "Test Toggle",
-                                              userDefaultsKey: "testKey",
-                                              onToggleComplete: nil)),
-            .toggle(action: DebugToggleAction(title: "Another Toggle",
-                                              userDefaultsKey: "secondKey",
-                                              onToggleComplete: { value in  print("Toggled! \(value)")} )),
-            .button(title: "Test Button", action: { print("Button Tapped") }),
-            .submenu(action: DebugSubmenuAction(title: "Test submenu",
-                                                dataSource: TestDataSource()))])
+        buildDebugMenu()
+    }
+
+    func buildDebugMenu() {
+        let testToggle = DebugActionType.toggle(action: DebugToggleAction(title: "Test Toggle",
+                                                                          userDefaultsKey: "testKey",
+                                                                          onToggleComplete: nil))
+        let anotherToggle = DebugActionType.toggle(action: DebugToggleAction(title: "Another Toggle",
+                                                                             userDefaultsKey: "secondKey",
+                                                                             onToggleComplete: { value in  print("Toggled! \(value)")}))
+        let testButton = DebugActionType.button(title: "Test Button", action: { print("Button Tapped") })
+
+        let dataSource = TestDataSource()
+        let testSubmenu = DebugActionType.submenu(action: DebugSubmenuAction(title: "Test submenu",
+                                                                             dataSource: .constant(dataSource)))
+        DebugMenuStore.shared.addAction(testToggle)
+        DebugMenuStore.shared.addAction(anotherToggle)
+        DebugMenuStore.shared.addAction(testButton)
+        DebugMenuStore.shared.addAction(testSubmenu)
     }
 
     var body: some Scene {
