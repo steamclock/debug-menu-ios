@@ -7,21 +7,40 @@
 
 import Foundation
 import DebugMenu
+import SwiftUI
+import Combine
+
 
 public class DebugMenuStore: BaseDebugDataSource {
+
+    @UserDefault(key: "testToggle") var testToggle = true
+    @UserDefault(key: "debugForceFoo") var debugForceFoo = false
+    @Published var globalBool: Bool = false
 
     public static let shared = DebugMenuStore()
 
     init() {
-        let testToggle = DebugToggleAction(title: "Test Toggle", userDefaultsKey: "testKey")
-        let anotherToggle = DebugToggleAction(title: "Another Toggle",
-                                              userDefaultsKey: "secondKey",
-                                              onToggleComplete: { value in  print("Toggled! \(value)")})
+        super.init()
+        buildDebugMenu()
+    }
+
+    func buildDebugMenu() {
         let testButton = DebugButtonAction(title: "Test Button", action: { print("Button Tapped") })
         let testSubmenu = DebugSubmenuAction(title: "Test submenu", dataSource: TestDataSource())
-        super.init(actions: [testToggle,
-                             anotherToggle,
-                             testButton,
-                             testSubmenu])
+        let testToggle = DebugToggleAction(title: "Test Toggle", toggle: $testToggle)
+        let debugForceFooToggle = DebugToggleAction(title: "Debug Force Foo", toggle: $debugForceFoo)
+        let toggleGlobalBool = DebugToggleAction(title: "Toggle Global Bool", toggle: Binding(get: {
+            self.globalBool
+        }, set: { value in
+            self.globalBool = value
+        }))
+
+        self.addActions([
+            testButton,
+            testSubmenu,
+            testToggle,
+            debugForceFooToggle,
+            toggleGlobalBool
+        ])
     }
 }

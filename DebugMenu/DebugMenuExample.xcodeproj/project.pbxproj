@@ -361,7 +361,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "file:///Users/alejandrozielinsky/iOSProjects/debug-menu-ios";
 			requirement = {
-				branch = "az/1-datasource";
+				branch = "az/userdefault-property-wrapper";
 				kind = branch;
 			};
 		};

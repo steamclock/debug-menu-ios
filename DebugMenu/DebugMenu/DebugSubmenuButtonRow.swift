@@ -9,13 +9,13 @@ import SwiftUI
 
 public struct DebugSubmenuAction: DebugAction {
     let title: String
-    let dataSource: DebugMenuDataSource
+    let dataSource: BaseDebugDataSource
 
     public var asAnyView: AnyView {
         AnyView(DebugSubmenuButtonRow(action: self))
     }
 
-    public init(title: String, dataSource: DebugMenuDataSource) {
+    public init(title: String, dataSource: BaseDebugDataSource) {
         self.title = title
         self.dataSource = dataSource
     }

@@ -8,11 +8,11 @@
 import SwiftUI
 import Combine
 
-public struct DebugMenuView: View {
+public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSource {
 
-    private var dataSource: DebugMenuDataSource
+    @ObservedObject private var dataSource: DataSource
 
-    public init(dataSource: DebugMenuDataSource) {
+    public init(dataSource: DataSource) {
         self.dataSource = dataSource
     }
 

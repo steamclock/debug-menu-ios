@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol DebugMenuDataSource: AnyObject {
+public protocol DebugMenuDataSource: ObservableObject {
     var navigationTitle: String { get }
     var actions: [DebugAction] { get }
     func addAction(_ action: DebugAction)
