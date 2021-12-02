@@ -13,13 +13,17 @@ open class BaseDebugDataSource: DebugMenuDataSource {
         "Debug Menu"
     }
 
-    public private(set) var actions: [DebugActionType]
+    public private(set) var actions: [DebugAction]
 
-    public init(actions: [DebugActionType] = []) {
+    public init(actions: [DebugAction] = []) {
         self.actions = actions
     }
 
-    public func addAction(_ action: DebugActionType) {
+    public func addAction(_ action: DebugAction) {
         self.actions.append(action)
+    }
+
+    public func addActions(_ actions: [DebugAction]) {
+        self.actions.append(contentsOf: actions)
     }
 }

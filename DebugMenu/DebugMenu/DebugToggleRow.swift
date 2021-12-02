@@ -7,15 +7,24 @@
 
 import SwiftUI
 
-public struct DebugToggleAction {
+public protocol DebugAction {
+    var asAnyView: AnyView { get }
+}
+
+public struct DebugToggleAction: DebugAction {
+
     let displayTitle: String
     let key: String
     let onToggleComplete: ((Bool) -> Void)?
     let userDefaults: UserDefaults
 
-    public init(title: String, userDefaultsKey: String, onToggleComplete: ((Bool) -> Void)? = nil, userDefaults: UserDefaults = .standard) {
+    public var asAnyView: AnyView {
+        AnyView(DebugToggleRow(action: self))
+    }
+
+    public init(title: String, userDefaultsKey: String? = nil, onToggleComplete: ((Bool) -> Void)? = nil, userDefaults: UserDefaults = .standard) {
         self.displayTitle = title
-        self.key = userDefaultsKey
+        self.key = userDefaultsKey ?? title.trimmingCharacters(in: .whitespaces).lowercased()
         self.onToggleComplete = onToggleComplete
         self.userDefaults = userDefaults
     }

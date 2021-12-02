@@ -7,21 +7,25 @@
 
 import SwiftUI
 
-struct DebugButtonRow: View {
+public struct DebugButtonAction: DebugAction {
     let title: String
     let action: () -> Void
-    var showChevron: Bool = false
+
+    public var asAnyView: AnyView {
+        AnyView(DebugButtonRow(action: self))
+    }
+
+    public init(title: String, action: @escaping () -> Void) {
+        self.title = title
+        self.action = action
+    }
+}
+
+struct DebugButtonRow: View {
+    let action: DebugButtonAction
 
     var body: some View {
-        Button(action: action) {
-            HStack {
-                Text(title)
-                Spacer()
-                if showChevron {
-                    Image(systemName: "chevron.right").foregroundColor(Color(.lightGray))
-                }
-            }
-        }
-        .foregroundColor(showChevron ? .black : .blue)
+        Button(action.title, action: action.action)
+            .foregroundColor(.blue)
     }
 }

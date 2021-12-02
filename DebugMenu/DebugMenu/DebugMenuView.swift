@@ -17,7 +17,7 @@ public struct DebugMenuView: View {
     }
 
     public var body: some View {
-        let options = dataSource.actions.map({ actionTypeToAnyView($0) })
+        let options = dataSource.actions.map({ $0.asAnyView })
         NavigationView {
             if !options.isEmpty {
                 List {
@@ -31,17 +31,6 @@ public struct DebugMenuView: View {
                     .font(.system(size: 20, weight: .semibold))
                     .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
             }
-        }
-    }
-
-    func actionTypeToAnyView(_ type: DebugActionType) -> AnyView {
-        switch type {
-        case .toggle(let action):
-            return AnyView(DebugToggleRow(action: action))
-        case .button(let title, let action):
-            return AnyView(DebugButtonRow(title: title, action: action))
-        case .submenu(let action):
-            return AnyView(DebugSubmenuButtonRow(action: action))
         }
     }
 }

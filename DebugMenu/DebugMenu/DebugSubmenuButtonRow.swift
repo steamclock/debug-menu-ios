@@ -7,11 +7,15 @@
 
 import SwiftUI
 
-public struct DebugSubmenuAction {
+public struct DebugSubmenuAction: DebugAction {
     let title: String
-    let dataSource: Binding<DebugMenuDataSource>
+    let dataSource: DebugMenuDataSource
 
-    public init(title: String, dataSource: Binding<DebugMenuDataSource>) {
+    public var asAnyView: AnyView {
+        AnyView(DebugSubmenuButtonRow(action: self))
+    }
+
+    public init(title: String, dataSource: DebugMenuDataSource) {
         self.title = title
         self.dataSource = dataSource
     }
@@ -22,7 +26,7 @@ struct DebugSubmenuButtonRow: View {
     @State var isPresenting = false
 
     var body: some View {
-        NavigationLink(destination: DebugMenuView(dataSource: action.dataSource.wrappedValue),
+        NavigationLink(destination: DebugMenuView(dataSource: action.dataSource),
                        isActive: $isPresenting) {
             Button(action.title, action: { isPresenting = true })
             .foregroundColor(.black)

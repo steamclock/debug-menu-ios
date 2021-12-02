@@ -7,14 +7,9 @@
 
 import Foundation
 
-public enum DebugActionType {
-    case toggle(action: DebugToggleAction)
-    case button(title: String, action: () -> Void)
-    case submenu(action: DebugSubmenuAction)
-}
-
 public protocol DebugMenuDataSource: AnyObject {
     var navigationTitle: String { get }
-    var actions: [DebugActionType] { get }
-    func addAction(_ action: DebugActionType)
+    var actions: [DebugAction] { get }
+    func addAction(_ action: DebugAction)
+    func addActions(_ actions: [DebugAction])
 }
