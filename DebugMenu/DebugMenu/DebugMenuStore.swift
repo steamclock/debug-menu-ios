@@ -1,12 +1,6 @@
 import Combine
 import Foundation
 
-public class DebugMenuStore: BaseDebugDataSource {
-
-    public static let shared = DebugMenuStore()
-
-}
-
 open class BaseDebugDataSource: DebugMenuDataSource {
 
     open var navigationTitle: String {

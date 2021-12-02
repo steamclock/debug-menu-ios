@@ -12,7 +12,7 @@ public struct DebugMenuView: View {
 
     private var dataSource: DebugMenuDataSource
 
-    public init(dataSource: DebugMenuDataSource = DebugMenuStore.shared) {
+    public init(dataSource: DebugMenuDataSource) {
         self.dataSource = dataSource
     }
 
@@ -32,11 +32,5 @@ public struct DebugMenuView: View {
                     .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
             }
         }
-    }
-}
-
-struct SwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-        DebugMenuView()
     }
 }
