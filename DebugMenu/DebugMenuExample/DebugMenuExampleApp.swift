@@ -16,21 +16,18 @@ struct DebugMenuExampleApp: App {
     }
 
     func buildDebugMenu() {
-        let testToggle = DebugActionType.toggle(action: DebugToggleAction(title: "Test Toggle",
-                                                                          userDefaultsKey: "testKey",
-                                                                          onToggleComplete: nil))
-        let anotherToggle = DebugActionType.toggle(action: DebugToggleAction(title: "Another Toggle",
-                                                                             userDefaultsKey: "secondKey",
-                                                                             onToggleComplete: { value in  print("Toggled! \(value)")}))
-        let testButton = DebugActionType.button(title: "Test Button", action: { print("Button Tapped") })
-
-        let dataSource = TestDataSource()
-        let testSubmenu = DebugActionType.submenu(action: DebugSubmenuAction(title: "Test submenu",
-                                                                             dataSource: .constant(dataSource)))
-        DebugMenuStore.shared.addAction(testToggle)
-        DebugMenuStore.shared.addAction(anotherToggle)
-        DebugMenuStore.shared.addAction(testButton)
-        DebugMenuStore.shared.addAction(testSubmenu)
+        let testToggle = DebugToggleAction(title: "Test Toggle", userDefaultsKey: "testKey")
+        let anotherToggle = DebugToggleAction(title: "Another Toggle",
+                                              userDefaultsKey: "secondKey",
+                                              onToggleComplete: { value in  print("Toggled! \(value)")})
+        let testButton = DebugButtonAction(title: "Test Button", action: { print("Button Tapped") })
+        let testSubmenu = DebugSubmenuAction(title: "Test submenu", dataSource: TestDataSource())
+        DebugMenuStore.shared.addActions([
+            testToggle,
+            anotherToggle,
+            testButton,
+            testSubmenu
+        ])
     }
 
     var body: some Scene {
@@ -47,7 +44,7 @@ public class TestDataSource: BaseDebugDataSource {
     }
 
     init() {
-        super.init(actions: [.button(title: "Submenu option", action: { })])
+        super.init(actions: [DebugButtonAction(title: "Submenu option", action: { })])
     }
 }
 
