@@ -17,7 +17,7 @@ struct ContentView: View {
             showDebugMenu = true
         }
         .sheet(isPresented: $showDebugMenu) {
-            DebugMenuView()
+            DebugMenuView(dataSource: DebugMenuStore.shared)
         }
     }
 }
