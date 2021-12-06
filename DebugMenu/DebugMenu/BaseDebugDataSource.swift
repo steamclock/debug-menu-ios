@@ -21,7 +21,7 @@ open class BaseDebugDataSource: DebugMenuDataSource {
         self.actions.append(contentsOf: actions)
     }
 
-    public var includeCommonOptions: Bool {
+    open var includeCommonOptions: Bool {
         false
     }
 }

@@ -27,7 +27,9 @@ public struct DebugToggleAction: DebugAction {
         self.toggle = toggle
         self.defaultValue = toggle.wrappedValue
     }
+}
 
+extension DebugToggleAction: DebugResettable {
     public func resetToDefault() {
         toggle.wrappedValue = defaultValue
     }

@@ -43,4 +43,8 @@ public class DebugMenuStore: BaseDebugDataSource {
             toggleGlobalBool
         ])
     }
+
+    public override var includeCommonOptions: Bool {
+        true
+    }
 }
