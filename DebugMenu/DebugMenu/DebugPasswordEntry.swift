@@ -44,7 +44,7 @@ public struct DebugPasswordEntry: ViewModifier {
 }
 
 public extension View {
-    func debugEntryPointing(dataSource: DebugMenuDataSource, passwordSHA256: String, longPressDuration: CGFloat = 5.0) -> some View {
+    func debugEntry(dataSource: DebugMenuDataSource, passwordSHA256: String, longPressDuration: CGFloat = 5.0) -> some View {
         modifier(DebugPasswordEntry(dataSource: dataSource, passwordSHA256: passwordSHA256, longPressDuration: longPressDuration))
     }
 }
