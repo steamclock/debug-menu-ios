@@ -12,4 +12,5 @@ public protocol DebugMenuDataSource: ObservableObject {
     var actions: [DebugAction] { get }
     func addAction(_ action: DebugAction)
     func addActions(_ actions: [DebugAction])
+    var includeCommonOptions: Bool { get }
 }

@@ -24,13 +24,28 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
                     ForEach(0..<options.count) { index in
                         options[index]
                     }
+                    if dataSource.includeCommonOptions {
+                        commonOptions()
+                    }
                 }
                 .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
+                
             } else {
                 Text("No debug options set!")
                     .font(.system(size: 20, weight: .semibold))
                     .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
             }
+        }
+    }
+
+    @ViewBuilder
+    func commonOptions() -> some View {
+        Section(header: Text("Common")) {
+            DebugButtonAction(title: "Reset Toggles To Default Values", action: {
+                for action in dataSource.actions {
+                    (action as? DebugToggleAction)?.resetToDefault()
+                }
+            }).asAnyView
         }
     }
 }

@@ -20,4 +20,8 @@ open class BaseDebugDataSource: DebugMenuDataSource {
     public func addActions(_ actions: [DebugAction]) {
         self.actions.append(contentsOf: actions)
     }
+
+    public var includeCommonOptions: Bool {
+        false
+    }
 }

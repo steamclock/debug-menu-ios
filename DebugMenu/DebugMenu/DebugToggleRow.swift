@@ -16,6 +16,7 @@ public struct DebugToggleAction: DebugAction {
 
     let displayTitle: String
     let toggle: Binding<Bool>
+    let defaultValue: Bool
 
     public var asAnyView: AnyView {
         AnyView(DebugToggleRow(action: self))
@@ -24,6 +25,11 @@ public struct DebugToggleAction: DebugAction {
     public init(title: String, toggle: Binding<Bool>) {
         self.displayTitle = title
         self.toggle = toggle
+        self.defaultValue = toggle.wrappedValue
+    }
+
+    public func resetToDefault() {
+        toggle.wrappedValue = defaultValue
     }
 }
 
