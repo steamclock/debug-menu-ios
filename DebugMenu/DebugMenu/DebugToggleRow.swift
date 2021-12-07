@@ -28,6 +28,12 @@ public struct DebugToggleAction: DebugAction, DebugResettable {
         self.defaultValue = defaultValue ?? toggle.wrappedValue
     }
 
+    public init(userDefault: UserDefault<Bool>) {
+        self.displayTitle = userDefault.displayTitle
+        self.toggle = userDefault.projectedValue
+        self.defaultValue = userDefault.defaultValue
+    }
+
     public func resetToDefault() {
         toggle.wrappedValue = defaultValue
     }

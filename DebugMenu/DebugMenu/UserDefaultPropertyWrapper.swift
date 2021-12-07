@@ -11,8 +11,10 @@ import SwiftUI
 public struct UserDefault<Value> {
 
     let key: String
+    public let displayTitle: String
     public let defaultValue: Value
     var storage: UserDefaults
+    public var onValueSet: ((Value) -> Void)? = nil
 
     public var wrappedValue: Value {
         get {
@@ -24,6 +26,7 @@ public struct UserDefault<Value> {
             } else {
                 storage.setValue(newValue, forKey: key)
             }
+            onValueSet?(newValue)
         }
     }
 
@@ -35,9 +38,11 @@ public struct UserDefault<Value> {
     }
 
     public init(wrappedValue defaultValue: Value,
-         key: String,
-         storage: UserDefaults = .standard) {
+                title: String? = nil,
+                key: String,
+                storage: UserDefaults = .standard) {
         self.key = key
+        self.displayTitle = title ?? key.camelCaseToWords().replacingOccurrences(of: "Key", with: "")
         self.defaultValue = defaultValue
         self.storage = storage
     }
@@ -55,4 +60,22 @@ private protocol AnyOptional {
 
 extension Optional: AnyOptional {
     var isNil: Bool { self == nil }
+}
+
+fileprivate extension String {
+
+    func camelCaseToWords() -> String {
+
+        return unicodeScalars.reduce("") {
+
+            if CharacterSet.uppercaseLetters.contains($1) {
+
+                return ($0.capitalized + " " + String($1))
+            }
+            else {
+
+                return $0.capitalized + String($1)
+            }
+        }
+    }
 }
