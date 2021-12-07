@@ -22,16 +22,10 @@ public struct DebugToggleAction: DebugAction, DebugResettable {
         AnyView(DebugToggleRow(action: self))
     }
 
-    public init(title: String, toggle: Binding<Bool>, defaultValue: Bool? = nil) {
+    public init(title: String, toggle: Binding<Bool>) {
         self.displayTitle = title
         self.toggle = toggle
-        self.defaultValue = defaultValue ?? toggle.wrappedValue
-    }
-
-    public init(userDefault: UserDefault<Bool>) {
-        self.displayTitle = userDefault.displayTitle
-        self.toggle = userDefault.projectedValue
-        self.defaultValue = userDefault.defaultValue
+        self.defaultValue = toggle.wrappedValue
     }
 
     public func resetToDefault() {
@@ -39,10 +33,10 @@ public struct DebugToggleAction: DebugAction, DebugResettable {
     }
 }
 
-public struct DebugToggleRow: View {
+struct DebugToggleRow: View {
     let action: DebugToggleAction
 
-    public var body: some View {
+    var body: some View {
         Toggle(action.displayTitle, isOn: action.toggle)
     }
 }
