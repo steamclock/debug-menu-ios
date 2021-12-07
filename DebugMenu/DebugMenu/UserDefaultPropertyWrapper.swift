@@ -11,7 +11,7 @@ import SwiftUI
 public struct UserDefault<Value> {
 
     let key: String
-    let defaultValue: Value
+    public let defaultValue: Value
     var storage: UserDefaults
 
     public var wrappedValue: Value {

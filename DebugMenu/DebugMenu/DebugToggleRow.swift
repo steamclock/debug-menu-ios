@@ -12,24 +12,22 @@ public protocol DebugAction {
     var asAnyView: AnyView { get }
 }
 
-public struct DebugToggleAction: DebugAction {
+public struct DebugToggleAction: DebugAction, DebugResettable {
 
     let displayTitle: String
     let toggle: Binding<Bool>
-    let defaultValue: Bool
+    public private(set) var defaultValue: Bool
 
     public var asAnyView: AnyView {
         AnyView(DebugToggleRow(action: self))
     }
 
-    public init(title: String, toggle: Binding<Bool>) {
+    public init(title: String, toggle: Binding<Bool>, defaultValue: Bool? = nil) {
         self.displayTitle = title
         self.toggle = toggle
-        self.defaultValue = toggle.wrappedValue
+        self.defaultValue = defaultValue ?? toggle.wrappedValue
     }
-}
 
-extension DebugToggleAction: DebugResettable {
     public func resetToDefault() {
         toggle.wrappedValue = defaultValue
     }

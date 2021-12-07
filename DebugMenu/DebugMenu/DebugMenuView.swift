@@ -51,5 +51,6 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
 }
 
 protocol DebugResettable {
+    var defaultValue: Bool { get }
     func resetToDefault()
 }
