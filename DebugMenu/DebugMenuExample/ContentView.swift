@@ -10,15 +10,14 @@ import DebugMenu
 
 struct ContentView: View {
 
-    @State var showDebugMenu = false
+    @SceneStorage("bypassDebugPasswordEntry") var bypassDebugPasswordEntry = false
 
     var body: some View {
-        Button("Debug Menu Entry Point") {
-            showDebugMenu = true
-        }
-        .sheet(isPresented: $showDebugMenu) {
-            DebugMenuView(dataSource: DebugMenuStore.shared)
-        }
+        Text("Debug Hidden Entry")
+            .debugMenuNavigation(dataSource: DebugMenuStore.shared,
+                                 passwordSHA256: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+                                 longPressDuration: 2.0,
+                                 forceShow: $bypassDebugPasswordEntry)
     }
 }
 
