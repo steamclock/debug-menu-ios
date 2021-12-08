@@ -9,20 +9,20 @@ import Foundation
 import UIKit
 import SwiftUI
 
-public struct TextAlert {
+internal struct DebugPasswordAlert {
 
     public var title: String
     public var message: String
-    public var placeholder: String = ""
-    public var accept: String = "OK"
-    public var cancel: String? = "Cancel"
-    public var secondaryActionTitle: String? = nil
-    public var keyboardType: UIKeyboardType = .default
+    public var placeholder: String
+    public var accept: String
+    public var cancel: String?
+    public var secondaryActionTitle: String?
+    public var keyboardType: UIKeyboardType
     public var action: (String?) -> Void
-    public var secondaryAction: (() -> Void)? = nil
+    public var secondaryAction: (() -> Void)?
 
-    public init(title: String,
-                message: String,
+    public init(title: String = "Debug Settings",
+                message: String = "Enter Password",
                 placeholder: String = "",
                 accept: String = "OK",
                 cancel: String? = "Cancel",
@@ -42,8 +42,8 @@ public struct TextAlert {
     }
 }
 
-public extension UIAlertController {
-    convenience init(alert: TextAlert) {
+internal extension UIAlertController {
+    convenience init(alert: DebugPasswordAlert) {
         self.init(title: alert.title, message: alert.message, preferredStyle: .alert)
         addTextField {
             $0.placeholder = alert.placeholder
@@ -66,12 +66,12 @@ public extension UIAlertController {
     }
 }
 
-public struct AlertWrapper<Content: View>: UIViewControllerRepresentable {
+internal struct DebugPasswordAlertWrapper<Content: View>: UIViewControllerRepresentable {
     @Binding public var isPresented: Bool
-    public let alert: TextAlert
+    public let alert: DebugPasswordAlert
     public let content: Content
 
-    public func makeUIViewController(context: UIViewControllerRepresentableContext<AlertWrapper>) -> UIHostingController<Content> {
+    public func makeUIViewController(context: UIViewControllerRepresentableContext<DebugPasswordAlertWrapper>) -> UIHostingController<Content> {
         UIHostingController(rootView: content)
     }
 
@@ -86,7 +86,7 @@ public struct AlertWrapper<Content: View>: UIViewControllerRepresentable {
         return Coordinator()
     }
 
-    public func updateUIViewController(_ uiViewController: UIHostingController<Content>, context: UIViewControllerRepresentableContext<AlertWrapper>) {
+    public func updateUIViewController(_ uiViewController: UIHostingController<Content>, context: UIViewControllerRepresentableContext<DebugPasswordAlertWrapper>) {
         uiViewController.rootView = content
         if isPresented && uiViewController.presentedViewController == nil {
             var alert = self.alert
@@ -100,11 +100,5 @@ public struct AlertWrapper<Content: View>: UIViewControllerRepresentable {
         if !isPresented && uiViewController.presentedViewController == context.coordinator.alertController {
             uiViewController.dismiss(animated: true)
         }
-    }
-}
-
-public extension View {
-    func alert(isPresented: Binding<Bool>, _ alert: TextAlert) -> some View {
-        AlertWrapper(isPresented: isPresented, alert: alert, content: self)
     }
 }

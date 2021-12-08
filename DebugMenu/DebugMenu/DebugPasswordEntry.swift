@@ -9,49 +9,68 @@ import Foundation
 import SwiftUI
 import CommonCrypto
 
-public struct DebugPasswordEntry: ViewModifier {
+internal struct DebugPasswordEntry: ViewModifier {
 
     private let debugDataSource: DebugMenuDataSource
     private let longPressDuration: CGFloat
     private let passwordHash: String
     @State private var showDialog = false
     @State private var showDebugMenu = false
+    private let forceShow: Binding<Bool>?
 
-    public init(dataSource: DebugMenuDataSource, passwordSHA256: String, longPressDuration: CGFloat) {
+    public init(dataSource: DebugMenuDataSource,
+                passwordSHA256: String,
+                longPressDuration: CGFloat,
+                forceShow: Binding<Bool>? = nil) {
         self.passwordHash = passwordSHA256
         self.longPressDuration = longPressDuration
         self.debugDataSource = dataSource
+        self.forceShow = forceShow
     }
 
     public func body(content: Content) -> some View {
         content
             .onLongPressGesture(minimumDuration: longPressDuration) {
-                showDialog = true
-            }.alert(isPresented: $showDialog, TextAlert(title: "Debug Settings", message: "Enter Password") { result in
-                guard let result = result else { return }
-                print(result.sha256() == self.passwordHash)
-                if result.sha256() == self.passwordHash {
-                    showDialog = false
+                if let forceShow = forceShow?.wrappedValue, forceShow == true {
                     showDebugMenu = true
                 } else {
-                    showDialog = false
+                    showDialog = true
                 }
-            })
+            }
+            .debugPasswordAlert(isPresented: $showDialog, DebugPasswordAlert(action: self.onPasswordEntered))
             .sheet(isPresented: $showDebugMenu) {
                 DebugMenuView(dataSource: debugDataSource)
             }
     }
-}
 
-public extension View {
-    func debugEntry(dataSource: DebugMenuDataSource, passwordSHA256: String, longPressDuration: CGFloat = 5.0) -> some View {
-        modifier(DebugPasswordEntry(dataSource: dataSource, passwordSHA256: passwordSHA256, longPressDuration: longPressDuration))
+    private func onPasswordEntered(input: String?) {
+        guard let input = input else { return }
+        if input.sha256 == self.passwordHash {
+            showDialog = false
+            showDebugMenu = true
+            forceShow?.wrappedValue = true
+        } else {
+            showDialog = false
+        }
     }
 }
 
-public extension Data {
-    func sha256() -> String{
-        return hexStringFromData(input: digest(input: self as NSData))
+public extension View {
+    func debugMenuNavigation(dataSource: DebugMenuDataSource,
+                             passwordSHA256: String,
+                             longPressDuration: CGFloat = 5.0,
+                             forceShow: Binding<Bool>? = nil) -> some View {
+        modifier(DebugPasswordEntry(dataSource: dataSource,
+                                    passwordSHA256: passwordSHA256,
+                                    longPressDuration: longPressDuration,
+                                    forceShow: forceShow))
+    }
+}
+
+private extension Data {
+
+    var sha256: String {
+        hexStringFromData(input: digest(input: self as NSData))
     }
 
     private func digest(input: NSData) -> NSData {
@@ -74,12 +93,14 @@ public extension Data {
     }
 }
 
-public extension String {
-    func sha256() -> String{
-        if let stringData = self.data(using: String.Encoding.utf8) {
-            return stringData.sha256()
-        }
-        return ""
+private extension String {
+    var sha256: String {
+        self.data(using: String.Encoding.utf8)?.sha256 ?? ""
     }
 }
 
+internal extension View {
+    func debugPasswordAlert(isPresented: Binding<Bool>, _ alert: DebugPasswordAlert) -> some View {
+        DebugPasswordAlertWrapper(isPresented: isPresented, alert: alert, content: self)
+    }
+}
