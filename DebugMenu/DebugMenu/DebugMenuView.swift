@@ -42,9 +42,7 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
     func commonOptions() -> some View {
         Section(header: Text("Common")) {
             DebugButtonAction(title: "Reset To Default Values", action: {
-                for action in dataSource.actions {
-                    (action as? DebugResettable)?.resetToDefault()
-                }
+                dataSource.resetToDefaults()
             }).asAnyView
         }
     }
