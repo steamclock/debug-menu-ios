@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import CommonCrypto
 
-internal struct DebugPasswordEntry: ViewModifier {
+struct DebugPasswordEntry: ViewModifier {
 
     private let debugDataSource: DebugMenuDataSource
     private let longPressDuration: CGFloat
@@ -18,17 +18,17 @@ internal struct DebugPasswordEntry: ViewModifier {
     @State private var showDebugMenu = false
     private let forceShow: Binding<Bool>?
 
-    public init(dataSource: DebugMenuDataSource,
-                passwordSHA256: String,
-                longPressDuration: CGFloat,
-                forceShow: Binding<Bool>? = nil) {
+    init(dataSource: DebugMenuDataSource,
+         passwordSHA256: String,
+         longPressDuration: CGFloat,
+         forceShow: Binding<Bool>? = nil) {
         self.passwordHash = passwordSHA256
         self.longPressDuration = longPressDuration
         self.debugDataSource = dataSource
         self.forceShow = forceShow
     }
 
-    public func body(content: Content) -> some View {
+    func body(content: Content) -> some View {
         content
             .onLongPressGesture(minimumDuration: longPressDuration) {
                 if let forceShow = forceShow?.wrappedValue, forceShow == true {
@@ -99,7 +99,7 @@ private extension String {
     }
 }
 
-internal extension View {
+extension View {
     func debugPasswordAlert(isPresented: Binding<Bool>, _ alert: DebugPasswordAlert) -> some View {
         DebugPasswordAlertWrapper(isPresented: isPresented, alert: alert, content: self)
     }

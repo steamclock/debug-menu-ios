@@ -9,27 +9,64 @@ import Foundation
 import UIKit
 import SwiftUI
 
-internal struct DebugPasswordAlert {
+struct DebugPasswordAlertWrapper<Content: View>: UIViewControllerRepresentable {
+    @Binding var isPresented: Bool
+    let alert: DebugPasswordAlert
+    let content: Content
 
-    public var title: String
-    public var message: String
-    public var placeholder: String
-    public var accept: String
-    public var cancel: String?
-    public var secondaryActionTitle: String?
-    public var keyboardType: UIKeyboardType
-    public var action: (String?) -> Void
-    public var secondaryAction: (() -> Void)?
+    func makeUIViewController(context: UIViewControllerRepresentableContext<DebugPasswordAlertWrapper>) -> UIHostingController<Content> {
+        UIHostingController(rootView: content)
+    }
 
-    public init(title: String = "Debug Settings",
-                message: String = "Enter Password",
-                placeholder: String = "",
-                accept: String = "OK",
-                cancel: String? = "Cancel",
-                secondaryActionTitle: String? = nil,
-                keyboardType: UIKeyboardType = .default,
-                action: @escaping (String?) -> Void,
-                secondaryAction: (() -> Void)? = nil) {
+    final class Coordinator {
+        var alertController: UIAlertController?
+        init(_ controller: UIAlertController? = nil) {
+            self.alertController = controller
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator()
+    }
+
+    func updateUIViewController(_ uiViewController: UIHostingController<Content>, context: UIViewControllerRepresentableContext<DebugPasswordAlertWrapper>) {
+        uiViewController.rootView = content
+        if isPresented && uiViewController.presentedViewController == nil {
+            var alert = self.alert
+            alert.action = {
+                self.isPresented = false
+                self.alert.action($0)
+            }
+            context.coordinator.alertController = UIAlertController(alert: alert)
+            uiViewController.present(context.coordinator.alertController!, animated: true)
+        }
+        if !isPresented && uiViewController.presentedViewController == context.coordinator.alertController {
+            uiViewController.dismiss(animated: true)
+        }
+    }
+}
+
+struct DebugPasswordAlert {
+
+    var title: String
+    var message: String
+    var placeholder: String
+    var accept: String
+    var cancel: String?
+    var secondaryActionTitle: String?
+    var keyboardType: UIKeyboardType
+    var action: (String?) -> Void
+    var secondaryAction: (() -> Void)?
+
+    init(title: String = "Debug Settings",
+         message: String = "Enter Password",
+         placeholder: String = "",
+         accept: String = "OK",
+         cancel: String? = "Cancel",
+         secondaryActionTitle: String? = nil,
+         keyboardType: UIKeyboardType = .default,
+         action: @escaping (String?) -> Void,
+         secondaryAction: (() -> Void)? = nil) {
         self.title = title
         self.message = message
         self.placeholder = placeholder
@@ -42,7 +79,7 @@ internal struct DebugPasswordAlert {
     }
 }
 
-internal extension UIAlertController {
+extension UIAlertController {
     convenience init(alert: DebugPasswordAlert) {
         self.init(title: alert.title, message: alert.message, preferredStyle: .alert)
         addTextField {
@@ -66,39 +103,3 @@ internal extension UIAlertController {
     }
 }
 
-internal struct DebugPasswordAlertWrapper<Content: View>: UIViewControllerRepresentable {
-    @Binding public var isPresented: Bool
-    public let alert: DebugPasswordAlert
-    public let content: Content
-
-    public func makeUIViewController(context: UIViewControllerRepresentableContext<DebugPasswordAlertWrapper>) -> UIHostingController<Content> {
-        UIHostingController(rootView: content)
-    }
-
-    public final class Coordinator {
-        var alertController: UIAlertController?
-        init(_ controller: UIAlertController? = nil) {
-            self.alertController = controller
-        }
-    }
-
-    public func makeCoordinator() -> Coordinator {
-        return Coordinator()
-    }
-
-    public func updateUIViewController(_ uiViewController: UIHostingController<Content>, context: UIViewControllerRepresentableContext<DebugPasswordAlertWrapper>) {
-        uiViewController.rootView = content
-        if isPresented && uiViewController.presentedViewController == nil {
-            var alert = self.alert
-            alert.action = {
-                self.isPresented = false
-                self.alert.action($0)
-            }
-            context.coordinator.alertController = UIAlertController(alert: alert)
-            uiViewController.present(context.coordinator.alertController!, animated: true)
-        }
-        if !isPresented && uiViewController.presentedViewController == context.coordinator.alertController {
-            uiViewController.dismiss(animated: true)
-        }
-    }
-}
