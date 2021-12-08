@@ -10,40 +10,36 @@ import DebugMenu
 import SwiftUI
 import Combine
 
-
 public class DebugMenuStore: BaseDebugDataSource {
-
-    @UserDefault(key: "testToggle") var testToggle = true
-    @UserDefault(key: "debugForceFoo") var debugForceFoo = false
-    @Published var globalBool: Bool = false
-
+    
+    @DebugToggle(key: "debugForceFooKey") var debugForceFoo = false
+    @DebugToggle(title: "Show All Foos", key: "showFoosKey") var showAllFoos = false
+    @DebugToggle(title: "In Memory Flag") var inMemoryFlag = false
+    
     public static let shared = DebugMenuStore()
-
+    
     init() {
         super.init()
         buildDebugMenu()
     }
-
+    
     func buildDebugMenu() {
         let testButton = DebugButtonAction(title: "Test Button", action: { print("Button Tapped") })
         let testSubmenu = DebugSubmenuAction(title: "Test submenu", dataSource: TestDataSource())
-        let testToggle = DebugToggleAction(title: "Test Toggle", toggle: $testToggle)
-        let debugForceFooToggle = DebugToggleAction(title: "Debug Force Foo", toggle: $debugForceFoo)
-        let toggleGlobalBool = DebugToggleAction(title: "Toggle Global Bool", toggle: Binding(get: {
-            self.globalBool
-        }, set: { value in
-            self.globalBool = value
-        }))
-
+        
+        let debugForceFooAction = DebugToggleAction(title: $debugForceFoo.displayTitle, toggle: Binding(get: { self.debugForceFoo }, set: { self.debugForceFoo = $0 }))
+        let showFoosAction = DebugToggleAction(title: $showAllFoos.displayTitle, toggle: Binding(get: { self.showAllFoos }, set: { self.showAllFoos = $0 }))
+        let inMemoryAction = DebugToggleAction(title: $inMemoryFlag.displayTitle, toggle: Binding(get: { self.inMemoryFlag }, set: { self.inMemoryFlag = $0 }))
+        
         self.addActions([
             testButton,
             testSubmenu,
-            testToggle,
-            debugForceFooToggle,
-            toggleGlobalBool
+            debugForceFooAction,
+            showFoosAction,
+            inMemoryAction
         ])
     }
-
+    
     public override var includeCommonOptions: Bool {
         true
     }
