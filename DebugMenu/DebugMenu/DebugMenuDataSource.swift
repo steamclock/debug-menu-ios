@@ -7,9 +7,19 @@
 
 import Foundation
 
-public protocol DebugMenuDataSource: AnyObject {
+public protocol DebugMenuDataSource: ObservableObject {
     var navigationTitle: String { get }
     var actions: [DebugAction] { get }
     func addAction(_ action: DebugAction)
     func addActions(_ actions: [DebugAction])
+    func resetToDefaults()
+    var includeCommonOptions: Bool { get }
+}
+
+extension DebugMenuDataSource {
+    public func resetToDefaults() {
+        for action in self.actions {
+            (action as? DebugResettable)?.resetToDefault()
+        }
+    }
 }

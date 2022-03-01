@@ -6,41 +6,37 @@
 //
 
 import SwiftUI
+import Combine
 
 public protocol DebugAction {
     var asAnyView: AnyView { get }
 }
 
-public struct DebugToggleAction: DebugAction {
+public struct DebugToggleAction: DebugAction, DebugResettable {
 
     let displayTitle: String
-    let key: String
-    let onToggleComplete: ((Bool) -> Void)?
-    let userDefaults: UserDefaults
+    let toggle: Binding<Bool>
+    public private(set) var defaultValue: Bool
 
     public var asAnyView: AnyView {
         AnyView(DebugToggleRow(action: self))
     }
 
-    public init(title: String, userDefaultsKey: String? = nil, onToggleComplete: ((Bool) -> Void)? = nil, userDefaults: UserDefaults = .standard) {
+    public init(title: String, toggle: Binding<Bool>) {
         self.displayTitle = title
-        self.key = userDefaultsKey ?? title.trimmingCharacters(in: .whitespaces).lowercased()
-        self.onToggleComplete = onToggleComplete
-        self.userDefaults = userDefaults
+        self.toggle = toggle
+        self.defaultValue = toggle.wrappedValue
+    }
+
+    public func resetToDefault() {
+        toggle.wrappedValue = defaultValue
     }
 }
 
-public struct DebugToggleRow: View {
+struct DebugToggleRow: View {
     let action: DebugToggleAction
 
-    public var body: some View {
-        Toggle(action.displayTitle, isOn: binding(for: action.key, onToggleComplete: action.onToggleComplete))
-    }
-
-    func binding(for key: String, onToggleComplete: ((Bool) -> Void)? = nil) -> Binding<Bool> {
-        Binding { action.userDefaults.bool(forKey: key) } set: { value in
-            action.userDefaults.set(value, forKey: key)
-            onToggleComplete?(value)
-        }
+    var body: some View {
+        Toggle(action.displayTitle, isOn: action.toggle)
     }
 }

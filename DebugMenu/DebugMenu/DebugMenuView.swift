@@ -8,11 +8,11 @@
 import SwiftUI
 import Combine
 
-public struct DebugMenuView: View {
+public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSource {
 
-    private var dataSource: DebugMenuDataSource
+    @ObservedObject private var dataSource: DataSource
 
-    public init(dataSource: DebugMenuDataSource) {
+    public init(dataSource: DataSource) {
         self.dataSource = dataSource
     }
 
@@ -24,8 +24,12 @@ public struct DebugMenuView: View {
                     ForEach(0..<options.count) { index in
                         options[index]
                     }
+                    if dataSource.includeCommonOptions {
+                        commonOptions()
+                    }
                 }
                 .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
+                
             } else {
                 Text("No debug options set!")
                     .font(.system(size: 20, weight: .semibold))
@@ -33,4 +37,18 @@ public struct DebugMenuView: View {
             }
         }
     }
+
+    @ViewBuilder
+    func commonOptions() -> some View {
+        Section(header: Text("Common")) {
+            DebugButtonAction(title: "Reset To Default Values", action: {
+                dataSource.resetToDefaults()
+            }).asAnyView
+        }
+    }
+}
+
+public protocol DebugResettable {
+    var defaultValue: Bool { get }
+    func resetToDefault()
 }
