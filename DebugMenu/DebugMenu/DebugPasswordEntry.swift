@@ -11,14 +11,14 @@ import CommonCrypto
 
 struct DebugPasswordEntry: ViewModifier {
 
-    private let debugDataSource: DebugMenuDataSource
+    private let debugDataSource: BaseDebugDataSource
     private let longPressDuration: CGFloat
     private let passwordHash: String
     @State private var showDialog = false
     @State private var showDebugMenu = false
     private let forceShow: Binding<Bool>?
 
-    init(dataSource: DebugMenuDataSource,
+    init(dataSource: BaseDebugDataSource,
          passwordSHA256: String,
          longPressDuration: CGFloat,
          forceShow: Binding<Bool>? = nil) {
@@ -56,7 +56,7 @@ struct DebugPasswordEntry: ViewModifier {
 }
 
 public extension View {
-    func debugMenuNavigation(dataSource: DebugMenuDataSource,
+    func debugMenuNavigation(dataSource: BaseDebugDataSource,
                              passwordSHA256: String,
                              longPressDuration: CGFloat = 5.0,
                              forceShow: Binding<Bool>? = nil) -> some View {
