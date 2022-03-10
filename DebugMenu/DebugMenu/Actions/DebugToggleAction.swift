@@ -1,8 +1,8 @@
 //
-//  DebugToggleRow.swift
+//  DebugToggleAction.swift
 //  
 //
-//  Created by Alejandro Zielinsky on 2021-11-30.
+//  Created by Alejandro Zielinsky on 2022-03-10.
 //
 
 import SwiftUI
@@ -26,13 +26,5 @@ public struct DebugToggleAction: DebugAction, DebugResettable {
 
     public func resetToDefault() {
         toggle.wrappedValue = defaultValue
-    }
-}
-
-struct DebugToggleRow: View {
-    let action: DebugToggleAction
-
-    var body: some View {
-        Toggle(action.displayTitle, isOn: action.toggle)
     }
 }
