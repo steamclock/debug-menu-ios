@@ -8,20 +8,23 @@
 
 /* Begin PBXBuildFile section */
 		D23CE6E227557FC8006F6209 /* DebugMenuExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23CE6E127557FC8006F6209 /* DebugMenuExampleApp.swift */; };
-		D23CE6E427557FC8006F6209 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23CE6E327557FC8006F6209 /* ContentView.swift */; };
+		D23CE6E427557FC8006F6209 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23CE6E327557FC8006F6209 /* MainView.swift */; };
 		D23CE6E627557FCA006F6209 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D23CE6E527557FCA006F6209 /* Assets.xcassets */; };
 		D23CE6E927557FCA006F6209 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D23CE6E827557FCA006F6209 /* Preview Assets.xcassets */; };
 		D2548FA727D82EAB00D82526 /* DebugMenu in Frameworks */ = {isa = PBXBuildFile; productRef = D2548FA627D82EAB00D82526 /* DebugMenu */; };
+		D2548FB027DAC32800D82526 /* switchcraft in Frameworks */ = {isa = PBXBuildFile; productRef = D2548FAF27DAC32800D82526 /* switchcraft */; };
+		D2548FB227DAC43B00D82526 /* SubmenuDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2548FB127DAC43B00D82526 /* SubmenuDataSource.swift */; };
 		D2B47D0A275944940053D1EA /* DebugMenuStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B47D09275944940053D1EA /* DebugMenuStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		D23CE6DE27557FC8006F6209 /* DebugMenuExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DebugMenuExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D23CE6E127557FC8006F6209 /* DebugMenuExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMenuExampleApp.swift; sourceTree = "<group>"; };
-		D23CE6E327557FC8006F6209 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D23CE6E327557FC8006F6209 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		D23CE6E527557FCA006F6209 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D23CE6E827557FCA006F6209 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D2548FA427D82DEB00D82526 /* debug-menu-ios */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "debug-menu-ios"; path = ../..; sourceTree = "<group>"; };
+		D2548FB127DAC43B00D82526 /* SubmenuDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmenuDataSource.swift; sourceTree = "<group>"; };
 		D2B47D09275944940053D1EA /* DebugMenuStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMenuStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -31,6 +34,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D2548FA727D82EAB00D82526 /* DebugMenu in Frameworks */,
+				D2548FB027DAC32800D82526 /* switchcraft in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,7 +62,8 @@
 			isa = PBXGroup;
 			children = (
 				D23CE6E127557FC8006F6209 /* DebugMenuExampleApp.swift */,
-				D23CE6E327557FC8006F6209 /* ContentView.swift */,
+				D2548FB127DAC43B00D82526 /* SubmenuDataSource.swift */,
+				D23CE6E327557FC8006F6209 /* MainView.swift */,
 				D23CE6E527557FCA006F6209 /* Assets.xcassets */,
 				D23CE6E727557FCA006F6209 /* Preview Content */,
 				D2B47D09275944940053D1EA /* DebugMenuStore.swift */,
@@ -100,6 +105,7 @@
 			name = DebugMenuExample;
 			packageProductDependencies = (
 				D2548FA627D82EAB00D82526 /* DebugMenu */,
+				D2548FAF27DAC32800D82526 /* switchcraft */,
 			);
 			productName = DebugMenuExample;
 			productReference = D23CE6DE27557FC8006F6209 /* DebugMenuExample.app */;
@@ -130,6 +136,7 @@
 			);
 			mainGroup = D23CE6D527557FC8006F6209;
 			packageReferences = (
+				D2548FAE27DAC32800D82526 /* XCRemoteSwiftPackageReference "switchcraft" */,
 			);
 			productRefGroup = D23CE6DF27557FC8006F6209 /* Products */;
 			projectDirPath = "";
@@ -157,7 +164,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D23CE6E427557FC8006F6209 /* ContentView.swift in Sources */,
+				D2548FB227DAC43B00D82526 /* SubmenuDataSource.swift in Sources */,
+				D23CE6E427557FC8006F6209 /* MainView.swift in Sources */,
 				D2B47D0A275944940053D1EA /* DebugMenuStore.swift in Sources */,
 				D23CE6E227557FC8006F6209 /* DebugMenuExampleApp.swift in Sources */,
 			);
@@ -365,10 +373,26 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		D2548FAE27DAC32800D82526 /* XCRemoteSwiftPackageReference "switchcraft" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/steamclock/switchcraft.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		D2548FA627D82EAB00D82526 /* DebugMenu */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DebugMenu;
+		};
+		D2548FAF27DAC32800D82526 /* switchcraft */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D2548FAE27DAC32800D82526 /* XCRemoteSwiftPackageReference "switchcraft" */;
+			productName = switchcraft;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

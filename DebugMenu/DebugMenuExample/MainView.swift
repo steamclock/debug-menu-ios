@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  MainView.swift
 //  DebugMenuExample
 //
 //  Created by Alejandro Zielinsky on 2021-11-29.
@@ -8,7 +8,7 @@
 import SwiftUI
 import DebugMenu
 
-struct ContentView: View {
+struct MainView: View {
 
     @ObservedObject var debugMenu = DebugMenuStore.shared
 
@@ -31,17 +31,5 @@ struct ContentView: View {
             }
             Spacer()
         }
-
-        //TODO:
-        //Global Config for Debug Password Entry
-        //A Generic Alert System SWIFTUI
-        //Switchcraft port
-        //
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
     }
 }

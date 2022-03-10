@@ -9,6 +9,7 @@ import Foundation
 import DebugMenu
 import SwiftUI
 import Combine
+import switchcraft
 
 public class DebugMenuStore: BaseDebugDataSource {
     
@@ -30,7 +31,7 @@ public class DebugMenuStore: BaseDebugDataSource {
     
     func buildDebugMenu() {
         let testButton = DebugButtonAction(title: "Test Button", action: { print("Button Tapped") })
-        let testSubmenu = DebugSubmenuAction(title: "Test submenu", dataSource: TestDataSource())
+        let testSubmenu = DebugSubmenuAction(title: "Test submenu", dataSource: SubmenuDataSource())
 
         let testAlert = DebugTextFieldAlertAction(
             title: "Redeem Code",
@@ -58,9 +59,7 @@ public class DebugMenuStore: BaseDebugDataSource {
 
         //Present UIViewControllers from DebugMenu!
         let hostAction = DebugHostControllerAction(title: "Switch Endpoint") { host in
-            let alert = UIAlertController(title: "test", message: "message",preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default))
-            host.present(alert, animated: true)
+            Switchcraft.shared.display(from: host)
         }
 
         let debugForceFooAction = DebugToggleAction(title: $debugForceFoo.displayTitle, toggle: Binding(get: { self.debugForceFoo }, set: { self.debugForceFoo = $0 }))
