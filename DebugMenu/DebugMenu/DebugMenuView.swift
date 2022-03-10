@@ -18,23 +18,30 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
 
     public var body: some View {
         let options = dataSource.actions.map({ $0.asAnyView })
-        NavigationView {
-            if !options.isEmpty {
-                List {
-                    ForEach(0..<options.count) { index in
-                        options[index]
-                    }
-                    if dataSource.includeCommonOptions {
-                        commonOptions()
-                    }
+        if !options.isEmpty {
+            List {
+                ForEach(0..<options.count) { index in
+                    options[index]
                 }
-                .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
-                
-            } else {
-                Text("No debug options set!")
-                    .font(.system(size: 20, weight: .semibold))
-                    .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
+                if dataSource.includeCommonOptions {
+                    commonOptions()
+                }
             }
+            .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
+            .alert(item: $dataSource.debugAlert, content: { alert in
+                Alert(
+                    title: Text(alert.title),
+                    message: (alert.message != nil) ? Text(alert.message ?? "") : nil,
+                    primaryButton: .default(Text(alert.primaryButtonTitle)),
+                    secondaryButton: .destructive(Text(alert.secondaryButtonTitle), action: {
+                        alert.action?()
+                    })
+                )
+            })
+        } else {
+            Text("No debug options set!")
+                .font(.system(size: 20, weight: .semibold))
+                .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
         }
     }
 
@@ -46,9 +53,4 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
             }).asAnyView
         }
     }
-}
-
-public protocol DebugResettable {
-    var defaultValue: Bool { get }
-    func resetToDefault()
 }

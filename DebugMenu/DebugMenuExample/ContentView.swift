@@ -10,14 +10,33 @@ import DebugMenu
 
 struct ContentView: View {
 
-    @SceneStorage("bypassDebugPasswordEntry") var bypassDebugPasswordEntry = false
+    @ObservedObject var debugMenu = DebugMenuStore.shared
 
     var body: some View {
-        Text("Debug Hidden Entry")
-            .debugMenuNavigation(dataSource: DebugMenuStore.shared,
-                                 passwordSHA256: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-                                 longPressDuration: 2.0,
-                                 forceShow: $bypassDebugPasswordEntry)
+        NavigationView {
+            VStack {
+                Spacer()
+                if debugMenu.isVisible {
+                    NavigationLink("To Debug Menu!") {
+                        DebugMenuView(dataSource: DebugMenuStore.shared)
+                    }
+                }
+                Text("Debug Hidden Entry")
+                    .debugMenuToggle(
+                        dataSource: debugMenu,
+                        config: debugMenu.config,
+                        isVisible: $debugMenu.isVisible,
+                        forceShow: $debugMenu.forceShow
+                    )
+            }
+            Spacer()
+        }
+
+        //TODO:
+        //Global Config for Debug Password Entry
+        //A Generic Alert System SWIFTUI
+        //Switchcraft port
+        //
     }
 }
 

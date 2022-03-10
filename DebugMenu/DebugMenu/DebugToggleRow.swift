@@ -8,10 +8,6 @@
 import SwiftUI
 import Combine
 
-public protocol DebugAction {
-    var asAnyView: AnyView { get }
-}
-
 public struct DebugToggleAction: DebugAction, DebugResettable {
 
     let displayTitle: String

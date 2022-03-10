@@ -5,16 +5,15 @@
 //  Created by Alejandro Zielinsky on 2021-12-06.
 //
 
-import Foundation
 import UIKit
 import SwiftUI
 
-struct DebugPasswordAlertWrapper<Content: View>: UIViewControllerRepresentable {
+struct DebugTextFieldAlertWrapper<Content: View>: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
-    let alert: DebugPasswordAlert
+    let alert: DebugTextFieldAlert
     let content: Content
 
-    func makeUIViewController(context: UIViewControllerRepresentableContext<DebugPasswordAlertWrapper>) -> UIHostingController<Content> {
+    func makeUIViewController(context: UIViewControllerRepresentableContext<DebugTextFieldAlertWrapper>) -> UIHostingController<Content> {
         UIHostingController(rootView: content)
     }
 
@@ -29,7 +28,7 @@ struct DebugPasswordAlertWrapper<Content: View>: UIViewControllerRepresentable {
         return Coordinator()
     }
 
-    func updateUIViewController(_ uiViewController: UIHostingController<Content>, context: UIViewControllerRepresentableContext<DebugPasswordAlertWrapper>) {
+    func updateUIViewController(_ uiViewController: UIHostingController<Content>, context: UIViewControllerRepresentableContext<DebugTextFieldAlertWrapper>) {
         uiViewController.rootView = content
         if isPresented && uiViewController.presentedViewController == nil {
             var alert = self.alert
@@ -46,41 +45,8 @@ struct DebugPasswordAlertWrapper<Content: View>: UIViewControllerRepresentable {
     }
 }
 
-struct DebugPasswordAlert {
-
-    var title: String
-    var message: String
-    var placeholder: String
-    var accept: String
-    var cancel: String?
-    var secondaryActionTitle: String?
-    var keyboardType: UIKeyboardType
-    var action: (String?) -> Void
-    var secondaryAction: (() -> Void)?
-
-    init(title: String = "Debug Settings",
-         message: String = "Enter Password",
-         placeholder: String = "",
-         accept: String = "OK",
-         cancel: String? = "Cancel",
-         secondaryActionTitle: String? = nil,
-         keyboardType: UIKeyboardType = .default,
-         action: @escaping (String?) -> Void,
-         secondaryAction: (() -> Void)? = nil) {
-        self.title = title
-        self.message = message
-        self.placeholder = placeholder
-        self.accept = accept
-        self.cancel = cancel
-        self.secondaryActionTitle = secondaryActionTitle
-        self.keyboardType = keyboardType
-        self.action = action
-        self.secondaryAction = secondaryAction
-    }
-}
-
 extension UIAlertController {
-    convenience init(alert: DebugPasswordAlert) {
+    convenience init(alert: DebugTextFieldAlert) {
         self.init(title: alert.title, message: alert.message, preferredStyle: .alert)
         addTextField {
             $0.placeholder = alert.placeholder
