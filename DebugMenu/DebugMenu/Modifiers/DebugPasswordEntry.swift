@@ -15,16 +15,17 @@ struct DebugPasswordEntry: ViewModifier {
     private let longPressDuration: CGFloat
     private let passwordHash: String
     @State private var showDialog = false
-    @State private var showDebugMenu = false
+    private var isVisible: Binding<Bool>
     private let forceShow: Binding<Bool>?
 
     init(dataSource: BaseDebugDataSource,
-         passwordSHA256: String,
-         longPressDuration: CGFloat,
+         config: DebugMenuAccessConfig,
+         isVisible: Binding<Bool>,
          forceShow: Binding<Bool>? = nil) {
-        self.passwordHash = passwordSHA256
-        self.longPressDuration = longPressDuration
+        self.passwordHash = config.passwordSHA256
+        self.longPressDuration = config.longPressDuration
         self.debugDataSource = dataSource
+        self.isVisible = isVisible
         self.forceShow = forceShow
     }
 
@@ -32,22 +33,23 @@ struct DebugPasswordEntry: ViewModifier {
         content
             .onLongPressGesture(minimumDuration: longPressDuration) {
                 if let forceShow = forceShow?.wrappedValue, forceShow == true {
-                    showDebugMenu = true
+                    isVisible.wrappedValue = true
                 } else {
                     showDialog = true
                 }
             }
-            .debugPasswordAlert(isPresented: $showDialog, DebugPasswordAlert(action: self.onPasswordEntered))
-            .sheet(isPresented: $showDebugMenu) {
-                DebugMenuView(dataSource: debugDataSource)
-            }
+            .debugTextFieldAlert(isPresented: $showDialog, DebugTextFieldAlert(
+                title: "Debug Settings",
+                message: "Enter Password",
+                action: self.onPasswordEntered
+            ))
     }
 
     private func onPasswordEntered(input: String?) {
         guard let input = input else { return }
         if input.sha256 == self.passwordHash {
             showDialog = false
-            showDebugMenu = true
+            isVisible.wrappedValue = true
             forceShow?.wrappedValue = true
         } else {
             showDialog = false
@@ -56,14 +58,16 @@ struct DebugPasswordEntry: ViewModifier {
 }
 
 public extension View {
-    func debugMenuNavigation(dataSource: BaseDebugDataSource,
-                             passwordSHA256: String,
-                             longPressDuration: CGFloat = 5.0,
-                             forceShow: Binding<Bool>? = nil) -> some View {
-        modifier(DebugPasswordEntry(dataSource: dataSource,
-                                    passwordSHA256: passwordSHA256,
-                                    longPressDuration: longPressDuration,
-                                    forceShow: forceShow))
+    func debugMenuToggle(dataSource: BaseDebugDataSource,
+                         config: DebugMenuAccessConfig,
+                         isVisible: Binding<Bool>,
+                         forceShow: Binding<Bool>? = nil) -> some View {
+        modifier(DebugPasswordEntry(
+            dataSource: dataSource,
+            config: config,
+            isVisible: isVisible,
+            forceShow: forceShow
+        ))
     }
 }
 
@@ -100,7 +104,11 @@ private extension String {
 }
 
 extension View {
-    func debugPasswordAlert(isPresented: Binding<Bool>, _ alert: DebugPasswordAlert) -> some View {
-        DebugPasswordAlertWrapper(isPresented: isPresented, alert: alert, content: self)
+    func debugTextFieldAlert(isPresented: Binding<Bool>, _ alert: DebugTextFieldAlert) -> some View {
+        DebugTextFieldAlertWrapper(isPresented: isPresented, alert: alert, content: self)
+    }
+
+    func debugAlert(isPresented: Binding<Bool>, _ action: @escaping (UIHostingController<AnyView>) -> Void) -> some View {
+        DebugHostControllerWrapper(isPresented: isPresented, action: action, content: AnyView(self))
     }
 }

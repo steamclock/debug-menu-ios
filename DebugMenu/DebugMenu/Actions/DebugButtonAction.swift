@@ -1,8 +1,8 @@
 //
-//  DebugButtonRow.swift
+//  DebugButtonAction.swift
 //  
 //
-//  Created by Alejandro Zielinsky on 2021-11-30.
+//  Created by Alejandro Zielinsky on 2022-03-10.
 //
 
 import SwiftUI
@@ -18,14 +18,5 @@ public struct DebugButtonAction: DebugAction {
     public init(title: String, action: @escaping () -> Void) {
         self.title = title
         self.action = action
-    }
-}
-
-struct DebugButtonRow: View {
-    let action: DebugButtonAction
-
-    var body: some View {
-        Button(action.title, action: action.action)
-            .foregroundColor(.blue)
     }
 }

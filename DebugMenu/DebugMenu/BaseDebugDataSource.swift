@@ -24,4 +24,6 @@ open class BaseDebugDataSource: DebugMenuDataSource {
     open var includeCommonOptions: Bool {
         false
     }
+
+    @Published public var debugAlert: DebugAlert?
 }

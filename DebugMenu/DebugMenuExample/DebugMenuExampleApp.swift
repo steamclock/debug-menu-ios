@@ -7,25 +7,30 @@
 
 import SwiftUI
 import DebugMenu
+import switchcraft
 
 @main
 struct DebugMenuExampleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
         }
     }
 }
 
-public class TestDataSource: BaseDebugDataSource {
-
-    public override var navigationTitle: String {
-        "Submenu"
-    }
-
-    init() {
-        super.init(actions: [DebugButtonAction(title: "Submenu option", action: { })])
-    }
+extension Switchcraft {
+    static let shared = Switchcraft(config: buildSwitchcraftConfig())
 }
 
+func buildSwitchcraftConfig() -> Config {
+    .init(
+        defaultsKey: "testServerEndpoint",
+        endpoints: [
+            Endpoint(title: "Production", url: URL(string: "https://prod.server.com")!),
+            Endpoint(title: "Testing", url: URL(string: "https://test.server.com")!),
+            Endpoint(title: "Development", url: URL(string: "https://dev.server.com")!)
+        ],
+        allowCustom: true
+    )
+}
