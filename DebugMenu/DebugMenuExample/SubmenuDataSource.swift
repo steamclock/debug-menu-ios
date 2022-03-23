@@ -14,7 +14,8 @@ public class SubmenuDataSource: BaseDebugDataSource {
     }
 
     init() {
-        super.init(actions: [DebugButtonAction(title: "Submenu option", action: { })])
+        let actions = [DebugButtonAction(title: "Submenu option", action: { })]
+        super.init(sections: [DebugSection(title: "", actions: actions)])
     }
 }
 

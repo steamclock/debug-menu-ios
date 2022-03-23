@@ -17,7 +17,7 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
     }
 
     public var body: some View {
-        if !dataSource.sections.isEmpty {
+        if !dataSource.sections.flatMap({ $0.actions }).isEmpty {
             List {
                 ForEach(dataSource.sections) { section in
                     let options = section.actions.map({ $0.asAnyView })
