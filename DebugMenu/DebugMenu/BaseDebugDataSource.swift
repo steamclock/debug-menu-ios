@@ -31,11 +31,11 @@ open class BaseDebugDataSource: DebugMenuDataSource {
     }
 
     public func addActions(actions: [DebugAction], to section: DebugSection? = nil) {
-        if let sectionIndex = self.sections.firstIndex(where: { $0.id == section?.id}) {
+        if let sectionIndex = self.sections.firstIndex(where: { $0 == section}) {
             self.sections[sectionIndex].addActions(actions)
         } else {
             defaultSection.addActions(actions)
-            if let defaultSectionIndex = self.sections.firstIndex(where: { $0.id == defaultSection.id}) {
+            if let defaultSectionIndex = self.sections.firstIndex(where: { $0 == defaultSection}) {
                 self.sections[defaultSectionIndex] = defaultSection
             } else {
                 self.sections.append(defaultSection)

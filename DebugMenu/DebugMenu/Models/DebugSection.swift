@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct DebugSection: Identifiable {
+public struct DebugSection: Equatable, Identifiable {
     public let id = UUID()
     public let title: String
     public private(set) var actions: [DebugAction]
@@ -19,5 +19,9 @@ public struct DebugSection: Identifiable {
 
     public mutating func addActions(_ actions: [DebugAction]) {
         self.actions.append(contentsOf: actions)
+    }
+    
+    public static func == (lhs: DebugSection, rhs: DebugSection) -> Bool {
+        lhs.id == rhs.id
     }
 }
