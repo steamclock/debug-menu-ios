@@ -9,9 +9,9 @@ import Foundation
 
 public protocol DebugMenuDataSource: ObservableObject {
     var navigationTitle: String { get }
-    var actions: [DebugAction] { get }
-    func addAction(_ action: DebugAction)
-    func addActions(_ actions: [DebugAction])
+    var sections: [DebugSection] { get }
+    func addSection(_ action: DebugSection)
+    func addSections(_ actions: [DebugSection])
     func resetToDefaults()
     var includeCommonOptions: Bool { get }
     var debugAlert: DebugAlert? { get set }
@@ -19,7 +19,7 @@ public protocol DebugMenuDataSource: ObservableObject {
 
 extension DebugMenuDataSource {
     public func resetToDefaults() {
-        for action in self.actions {
+        for action in sections.flatMap({ $0.actions }) {
             (action as? DebugResettable)?.resetToDefault()
         }
     }

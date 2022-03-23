@@ -26,27 +26,25 @@ public class DebugMenuStore: BaseDebugDataSource {
     
     init() {
         super.init()
-        buildDebugMenu()
+        self.addSections([toggleSection, buttonSection, alertSection])
     }
-    
-    func buildDebugMenu() {
+
+    lazy var toggleSection: DebugSection = {
+        let debugForceFooAction = DebugToggleAction(title: $debugForceFoo.displayTitle, toggle: Binding(get: { self.debugForceFoo }, set: { self.debugForceFoo = $0 }))
+        let showFoosAction = DebugToggleAction(title: $showAllFoos.displayTitle, toggle: Binding(get: { self.showAllFoos }, set: { self.showAllFoos = $0 }))
+        let inMemoryAction = DebugToggleAction(title: $inMemoryFlag.displayTitle, toggle: Binding(get: { self.inMemoryFlag }, set: { self.inMemoryFlag = $0 }))
+
+        return DebugSection(title: "Toggles", actions: [debugForceFooAction, showFoosAction, inMemoryAction])
+    }()
+
+    lazy var buttonSection: DebugSection = {
         let testButton = DebugButtonAction(title: "Test Button", action: { print("Button Tapped") })
         let testSubmenu = DebugSubmenuAction(title: "Test submenu", dataSource: SubmenuDataSource())
 
-        let testAlert = DebugTextFieldAlertAction(
-            title: "Redeem Code",
-            alert: DebugTextFieldAlert (
-                title: "Enter Code",
-                action: { code in
-                    guard let code = code, !code.isEmpty else { return }
-                    //Simulate Network Call
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                        //Show Result Alert
-                        self?.debugAlert = DebugAlert(title: "Invalid Code", message: "\(code) is invalid!")
-                    }
-                }
-            )
-        )
+        return DebugSection(title: "Buttons", actions: [testButton, testSubmenu])
+    }()
+
+    lazy var alertSection: DebugSection = {
 
         let testNumericAlert = DebugTextFieldAlertAction(
             title: "Test Numeric Alert",
@@ -62,22 +60,26 @@ public class DebugMenuStore: BaseDebugDataSource {
             Switchcraft.shared.display(from: host)
         }
 
-        let debugForceFooAction = DebugToggleAction(title: $debugForceFoo.displayTitle, toggle: Binding(get: { self.debugForceFoo }, set: { self.debugForceFoo = $0 }))
-        let showFoosAction = DebugToggleAction(title: $showAllFoos.displayTitle, toggle: Binding(get: { self.showAllFoos }, set: { self.showAllFoos = $0 }))
-        let inMemoryAction = DebugToggleAction(title: $inMemoryFlag.displayTitle, toggle: Binding(get: { self.inMemoryFlag }, set: { self.inMemoryFlag = $0 }))
-        
-        self.addActions([
-            testButton,
-            testSubmenu,
-            testAlert,
-            hostAction,
-            testNumericAlert,
-            debugForceFooAction,
-            showFoosAction,
-            inMemoryAction
-        ])
-    }
-    
+        return DebugSection(title: "Alerts", actions: [testAlert, testNumericAlert, hostAction])
+    }()
+
+    lazy var testAlert: DebugTextFieldAlertAction = {
+        DebugTextFieldAlertAction(
+            title: "Redeem Code",
+            alert: DebugTextFieldAlert (
+                title: "Enter Code",
+                action: { code in
+                    guard let code = code, !code.isEmpty else { return }
+                    //Simulate Network Call
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                        //Show Result Alert
+                        self?.debugAlert = DebugAlert(title: "Invalid Code", message: "\(code) is invalid!")
+                    }
+                }
+            )
+        )
+    }()
+
     public override var includeCommonOptions: Bool {
         true
     }

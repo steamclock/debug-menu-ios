@@ -17,12 +17,17 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
     }
 
     public var body: some View {
-        let options = dataSource.actions.map({ $0.asAnyView })
-        if !options.isEmpty {
+        if !dataSource.sections.isEmpty {
             List {
-                ForEach(0..<options.count) { index in
-                    options[index]
+                ForEach(dataSource.sections) { section in
+                    let options = section.actions.map({ $0.asAnyView })
+                    Section(header: Text(section.title)) {
+                        ForEach(0..<options.count) { index in
+                            options[index]
+                        }
+                    }
                 }
+
                 if dataSource.includeCommonOptions {
                     commonOptions()
                 }
