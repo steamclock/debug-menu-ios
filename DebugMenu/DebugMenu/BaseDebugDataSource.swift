@@ -7,23 +7,23 @@ open class BaseDebugDataSource: DebugMenuDataSource {
         "Debug Menu"
     }
 
-    public private(set) var actions: [DebugAction]
+    @Published public private(set) var sections: [DebugSection]
 
-    public init(actions: [DebugAction] = []) {
-        self.actions = actions
+    @Published public var debugAlert: DebugAlert?
+
+    public init(sections: [DebugSection] = []) {
+        self.sections = sections
     }
 
-    public func addAction(_ action: DebugAction) {
-        self.actions.append(action)
+    public func addSection(_ section: DebugSection) {
+        self.sections.append(section)
     }
 
-    public func addActions(_ actions: [DebugAction]) {
-        self.actions.append(contentsOf: actions)
+    public func addSections(_ sections: [DebugSection]) {
+        self.sections.append(contentsOf: sections)
     }
 
     open var includeCommonOptions: Bool {
         false
     }
-
-    @Published public var debugAlert: DebugAlert?
 }
