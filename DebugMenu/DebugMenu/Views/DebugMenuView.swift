@@ -61,7 +61,9 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
             DebugHostControllerRow(action: action)
         } else if let action = action as? DebugTextFieldAlertAction {
             DebugTextFieldAlertRow(action: action)
-        } else  {
+        } else if let action = action as? DebugCustomAction {
+            action.rowView
+        } else {
             Text("Unsupported Action")
         }
     }

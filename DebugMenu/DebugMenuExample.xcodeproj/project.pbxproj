@@ -63,10 +63,10 @@
 			children = (
 				D23CE6E127557FC8006F6209 /* DebugMenuExampleApp.swift */,
 				D2548FB127DAC43B00D82526 /* SubmenuDataSource.swift */,
+				D2B47D09275944940053D1EA /* DebugMenuStore.swift */,
 				D23CE6E327557FC8006F6209 /* MainView.swift */,
 				D23CE6E527557FCA006F6209 /* Assets.xcassets */,
 				D23CE6E727557FCA006F6209 /* Preview Content */,
-				D2B47D09275944940053D1EA /* DebugMenuStore.swift */,
 				D2548FA427D82DEB00D82526 /* debug-menu-ios */,
 			);
 			path = DebugMenuExample;

@@ -56,7 +56,11 @@ public class DebugMenuStore: BaseDebugDataSource {
             Switchcraft.shared.display(from: host)
         }
 
-        return DebugSection(title: "Alerts", actions: [testAlert, testNumericAlert, hostAction])
+        let navigateAction = DebugNavigationAction(title: "SwiftUI View") {
+            Text("Hi")
+        }
+
+        return DebugSection(title: "Alerts", actions: [testAlert, testNumericAlert, hostAction, navigateAction])
     }()
 
     lazy var testAlert: DebugTextFieldAlertAction = {
