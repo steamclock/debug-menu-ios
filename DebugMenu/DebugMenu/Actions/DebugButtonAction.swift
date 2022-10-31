@@ -5,7 +5,7 @@
 //  Created by Alejandro Zielinsky on 2022-03-10.
 //
 
-import SwiftUI
+import Foundation
 
 public struct DebugButtonAction: DebugAction {
     let title: String

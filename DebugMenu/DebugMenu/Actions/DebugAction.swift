@@ -5,6 +5,6 @@
 //  Created by Alejandro Zielinsky on 2022-03-10.
 //
 
-import SwiftUI
+import Foundation
 
 public protocol DebugAction {}
