@@ -7,6 +7,4 @@
 
 import SwiftUI
 
-public protocol DebugAction {
-    var asAnyView: AnyView { get }
-}
+public protocol DebugAction {}

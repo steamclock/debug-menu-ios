@@ -11,20 +11,18 @@ import Combine
 public struct DebugToggleAction: DebugAction, DebugResettable {
 
     let displayTitle: String
-    let toggle: Binding<Bool>
+    @Binding var toggle: Bool
     public private(set) var defaultValue: Bool
+    public var publisher: PassthroughSubject<Bool, Never>
 
-    public var asAnyView: AnyView {
-        AnyView(DebugToggleRow(action: self))
-    }
-
-    public init(title: String, toggle: Binding<Bool>) {
+    public init(title: String, toggle: Binding<Bool>, defaultValue: Bool, publisher: PassthroughSubject<Bool, Never>) {
         self.displayTitle = title
-        self.toggle = toggle
-        self.defaultValue = toggle.wrappedValue
+        self._toggle = toggle
+        self.defaultValue = defaultValue
+        self.publisher = publisher
     }
 
     public func resetToDefault() {
-        toggle.wrappedValue = defaultValue
+        $toggle.wrappedValue = defaultValue
     }
 }

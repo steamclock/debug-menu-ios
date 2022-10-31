@@ -30,11 +30,7 @@ public class DebugMenuStore: BaseDebugDataSource {
     }
 
     lazy var toggleSection: DebugSection = {
-        let debugForceFooAction = DebugToggleAction(title: $debugForceFoo.displayTitle, toggle: Binding(get: { self.debugForceFoo }, set: { self.debugForceFoo = $0 }))
-        let showFoosAction = DebugToggleAction(title: $showAllFoos.displayTitle, toggle: Binding(get: { self.showAllFoos }, set: { self.showAllFoos = $0 }))
-        let inMemoryAction = DebugToggleAction(title: $inMemoryFlag.displayTitle, toggle: Binding(get: { self.inMemoryFlag }, set: { self.inMemoryFlag = $0 }))
-
-        return DebugSection(title: "Toggles", actions: [debugForceFooAction, showFoosAction, inMemoryAction])
+        DebugSection(title: "Toggles", actions: [$debugForceFoo.action, $showAllFoos.action, $inMemoryFlag.action])
     }()
 
     lazy var buttonSection: DebugSection = {

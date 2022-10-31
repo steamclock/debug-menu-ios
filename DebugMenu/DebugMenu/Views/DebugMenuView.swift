@@ -20,10 +20,9 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
         if !dataSource.sections.flatMap({ $0.actions }).isEmpty {
             List {
                 ForEach(dataSource.sections) { section in
-                    let options = section.actions.map({ $0.asAnyView })
                     Section(header: Text(section.title)) {
-                        ForEach(0..<options.count) { index in
-                            options[index]
+                        ForEach(0..<section.actions.count, id: \.self) { index in
+                            viewForAction(section.actions[index])
                         }
                     }
                 }
@@ -32,6 +31,7 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
                     commonOptions()
                 }
             }
+            .environmentObject(dataSource)
             .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
             .alert(item: $dataSource.debugAlert, content: { alert in
                 Alert(
@@ -50,12 +50,29 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
         }
     }
 
+    @ViewBuilder func viewForAction(_ action: DebugAction) -> some View {
+        if let action = action as? DebugToggleAction {
+            DebugToggleRow<DataSource>(action: action, toggle: action.$toggle)
+        } else if let action = action as? DebugButtonAction {
+            DebugButtonRow(action: action)
+        } else if let action = action as? DebugSubmenuAction {
+            DebugSubmenuButtonRow(action: action)
+        } else if let action = action as? DebugHostControllerAction {
+            DebugHostControllerRow(action: action)
+        } else if let action = action as? DebugTextFieldAlertAction {
+            DebugTextFieldAlertRow(action: action)
+        } else  {
+            Text("Unsupported Action")
+        }
+    }
+
     @ViewBuilder
     func commonOptions() -> some View {
         Section(header: Text("Common")) {
-            DebugButtonAction(title: "Reset To Default Values", action: {
+            let action = DebugButtonAction(title: "Reset To Default Values", action: {
                 dataSource.resetToDefaults()
-            }).asAnyView
+            })
+            DebugButtonRow(action: action)
         }
     }
 }
