@@ -52,18 +52,6 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
         }
     }
 
-    var loadingIndicator: some View {
-        ZStack {
-            Color.black.opacity(0.3)
-            Color.black.opacity(0.5)
-                .frame(width: 100, height: 100)
-                .cornerRadius(12)
-            ProgressView {
-                Text("Loading...")
-            }
-        }
-    }
-
     @ViewBuilder func viewForAction(_ action: DebugAction) -> some View {
         if let action = action as? DebugToggleAction {
             DebugToggleRow<DataSource>(action: action, toggle: action.$toggle)
