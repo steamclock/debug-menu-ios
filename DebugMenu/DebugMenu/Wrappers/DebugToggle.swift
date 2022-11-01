@@ -49,7 +49,7 @@ public struct DebugToggle: DynamicProperty  {
         storage: UserDefaults = .standard
     ) {
         self.defaultValue = defaultValue
-        self.displayTitle = title ?? key.camelCaseToWords().replacingOccurrences(of: "Key", with: "")
+        self.displayTitle = title ?? key.camelCaseToWords().replacingOccurrences(of: "Key", with: "").trimmingCharacters(in: .whitespaces)
         self.publisher = PassthroughSubject<Bool, Never>()
         self.storage = Storage(defaultValue, key: key, storage: storage)
     }
