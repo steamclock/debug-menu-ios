@@ -31,6 +31,7 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
                     commonOptions()
                 }
             }
+            .loadingIndicator(dataSource.isLoading)
             .environmentObject(dataSource)
             .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
             .alert(item: $dataSource.debugAlert, content: { alert in
@@ -47,6 +48,18 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
             Text("No debug options set!")
                 .font(.system(size: 20, weight: .semibold))
                 .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
+        }
+    }
+
+    var loadingIndicator: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+            Color.black.opacity(0.5)
+                .frame(width: 100, height: 100)
+                .cornerRadius(12)
+            ProgressView {
+                Text("Loading...")
+            }
         }
     }
 

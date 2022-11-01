@@ -11,6 +11,8 @@ open class BaseDebugDataSource: DebugMenuDataSource {
 
     @Published public var debugAlert: DebugAlert?
 
+    @Published public var isLoading: Bool = false
+
     public init(sections: [DebugSection] = []) {
         self.sections = sections
     }

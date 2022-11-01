@@ -76,8 +76,10 @@ public class DebugMenuStore: BaseDebugDataSource {
                 action: { code in
                     guard let code = code, !code.isEmpty else { return }
                     //Simulate Network Call
+                    self.isLoading = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                         //Show Result Alert
+                        self?.isLoading = false
                         self?.debugAlert = DebugAlert(title: "Invalid Code", message: "\(code) is invalid!")
                     }
                 }
