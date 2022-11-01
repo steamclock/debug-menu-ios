@@ -31,6 +31,7 @@ public struct DebugMenuView<DataSource>: View where DataSource: DebugMenuDataSou
                     commonOptions()
                 }
             }
+            .allowsHitTesting(!dataSource.isLoading)
             .loadingIndicator(dataSource.isLoading)
             .environmentObject(dataSource)
             .navigationBarTitle(Text(dataSource.navigationTitle), displayMode: .inline)
