@@ -14,23 +14,23 @@ struct DebugPasswordEntry: ViewModifier {
     private let longPressDuration: CGFloat
     private let passwordHash: String
     @State private var showDialog = false
-    private var isVisible: Binding<Bool>
-    private let forceShow: Binding<Bool>?
+    @Binding var isVisible: Bool
+    @Binding var forceShow: Bool
 
     init(config: DebugMenuAccessConfig,
          isVisible: Binding<Bool>,
-         forceShow: Binding<Bool>? = nil) {
+         forceShow: Binding<Bool>) {
         self.passwordHash = config.passwordSHA256
         self.longPressDuration = config.longPressDuration
-        self.isVisible = isVisible
-        self.forceShow = forceShow
+        self._isVisible = isVisible
+        self._forceShow = forceShow
     }
 
     func body(content: Content) -> some View {
         content
             .onLongPressGesture(minimumDuration: longPressDuration) {
-                if let forceShow = forceShow?.wrappedValue, forceShow == true {
-                    isVisible.wrappedValue = true
+                if forceShow == true {
+                    $isVisible.wrappedValue = true
                 } else {
                     showDialog = true
                 }
@@ -46,8 +46,8 @@ struct DebugPasswordEntry: ViewModifier {
         guard let input = input else { return }
         if input.sha256 == self.passwordHash {
             showDialog = false
-            isVisible.wrappedValue = true
-            forceShow?.wrappedValue = true
+            $isVisible.wrappedValue = true
+            $forceShow.wrappedValue = true
         } else {
             showDialog = false
         }
@@ -57,7 +57,7 @@ struct DebugPasswordEntry: ViewModifier {
 public extension View {
     func debugMenuToggle(config: DebugMenuAccessConfig,
                          isVisible: Binding<Bool>,
-                         forceShow: Binding<Bool>? = nil) -> some View {
+                         forceShow: Binding<Bool>) -> some View {
         modifier(DebugPasswordEntry(
             config: config,
             isVisible: isVisible,
