@@ -5,7 +5,7 @@
 //  Created by Alejandro Zielinsky on 2022-11-01.
 //
 
-import Foundation
+import SwiftUI
 
 struct LoadingIndicatorModifier: ViewModifier {
     let isLoading: Bool
