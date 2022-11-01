@@ -13,7 +13,7 @@ import switchcraft
 
 public class DebugMenuStore: BaseDebugDataSource {
     
-    @DebugToggle(key: "debugForceFooKey") var debugForceFoo = false
+    @DebugToggle(key: "debugForceFooKey", didSet: debugForceFooSet) var debugForceFoo = false
     @DebugToggle(title: "Show All Foos", key: "showFoosKey") var showAllFoos = false
     @DebugToggle(title: "In Memory Flag") var inMemoryFlag = false
 
@@ -27,6 +27,11 @@ public class DebugMenuStore: BaseDebugDataSource {
     init() {
         super.init()
         self.addSections([toggleSection, buttonSection, alertSection])
+    }
+
+    // Trigger additional functionality on toggle
+    private static func debugForceFooSet(value: Bool) {
+        print("DebugForceFoo set to \(value)")
     }
 
     lazy var toggleSection: DebugSection = {

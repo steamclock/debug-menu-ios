@@ -14,6 +14,7 @@ public struct DebugToggle: DynamicProperty  {
     public let displayTitle: String
     public let defaultValue: Bool
     public var publisher: PassthroughSubject<Bool, Never>
+    public let didSet: ((Bool) -> Void)?
 
     @ObservedObject public private(set) var storage: Storage
 
@@ -23,6 +24,7 @@ public struct DebugToggle: DynamicProperty  {
         }
         nonmutating set {
             storage.value = newValue
+            didSet?(newValue)
             publisher.send(newValue)
         }
     }
@@ -46,22 +48,26 @@ public struct DebugToggle: DynamicProperty  {
         wrappedValue defaultValue: Bool,
         title: String? = nil,
         key: String,
-        storage: UserDefaults = .standard
+        storage: UserDefaults = .standard,
+        didSet: ((Bool) -> Void)? = nil
     ) {
         self.defaultValue = defaultValue
         self.displayTitle = title ?? key.camelCaseToWords().replacingOccurrences(of: "Key", with: "").trimmingCharacters(in: .whitespaces)
         self.publisher = PassthroughSubject<Bool, Never>()
         self.storage = Storage(defaultValue, key: key, storage: storage)
+        self.didSet = didSet
     }
 
     public init(
         wrappedValue defaultValue: Bool,
-        title: String
+        title: String,
+        didSet: ((Bool) -> Void)? = nil
     ) {
         self.defaultValue = defaultValue
         self.displayTitle = title
         self.publisher = PassthroughSubject<Bool, Never>()
         self.storage = Storage(defaultValue)
+        self.didSet = didSet
     }
 
     final public class Storage: NSObject, ObservableObject {
