@@ -23,7 +23,6 @@ struct MainView: View {
                 }
                 Text("Debug Hidden Entry")
                     .debugMenuToggle(
-                        dataSource: debugMenu,
                         config: debugMenu.config,
                         isVisible: $debugMenu.isVisible,
                         forceShow: $debugMenu.forceShow

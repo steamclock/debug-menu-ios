@@ -11,20 +11,17 @@ import CommonCrypto
 
 struct DebugPasswordEntry: ViewModifier {
 
-    private let debugDataSource: BaseDebugDataSource
     private let longPressDuration: CGFloat
     private let passwordHash: String
     @State private var showDialog = false
     private var isVisible: Binding<Bool>
     private let forceShow: Binding<Bool>?
 
-    init(dataSource: BaseDebugDataSource,
-         config: DebugMenuAccessConfig,
+    init(config: DebugMenuAccessConfig,
          isVisible: Binding<Bool>,
          forceShow: Binding<Bool>? = nil) {
         self.passwordHash = config.passwordSHA256
         self.longPressDuration = config.longPressDuration
-        self.debugDataSource = dataSource
         self.isVisible = isVisible
         self.forceShow = forceShow
     }
@@ -58,12 +55,10 @@ struct DebugPasswordEntry: ViewModifier {
 }
 
 public extension View {
-    func debugMenuToggle(dataSource: BaseDebugDataSource,
-                         config: DebugMenuAccessConfig,
+    func debugMenuToggle(config: DebugMenuAccessConfig,
                          isVisible: Binding<Bool>,
                          forceShow: Binding<Bool>? = nil) -> some View {
         modifier(DebugPasswordEntry(
-            dataSource: dataSource,
             config: config,
             isVisible: isVisible,
             forceShow: forceShow
