@@ -5,8 +5,6 @@
 //  Created by Alejandro Zielinsky on 2022-03-10.
 //
 
-import Foundation
-
 public struct DebugMenuAccessConfig {
     public var passwordSHA256: String
     public var longPressDuration: Double

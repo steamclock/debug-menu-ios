@@ -5,8 +5,6 @@
 //  Created by Alejandro Zielinsky on 2022-03-10.
 //
 
-import Foundation
-
 public struct DebugButtonAction: DebugAction {
     let title: String
     let action: () -> Void

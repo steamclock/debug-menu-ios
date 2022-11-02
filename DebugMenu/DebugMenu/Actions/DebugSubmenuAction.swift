@@ -5,8 +5,6 @@
 //  Created by Alejandro Zielinsky on 2022-03-10.
 //
 
-import Foundation
-
 public struct DebugSubmenuAction: DebugAction {
     let title: String
     let dataSource: BaseDebugDataSource
