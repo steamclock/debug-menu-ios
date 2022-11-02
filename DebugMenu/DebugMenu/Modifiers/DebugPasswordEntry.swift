@@ -30,7 +30,7 @@ struct DebugPasswordEntry: ViewModifier {
         content
             .onLongPressGesture(minimumDuration: longPressDuration) {
                 if forceShow == true {
-                    $isVisible.wrappedValue = true
+                    isVisible = true
                 } else {
                     showDialog = true
                 }
@@ -46,8 +46,8 @@ struct DebugPasswordEntry: ViewModifier {
         guard let input = input else { return }
         if input.sha256 == self.passwordHash {
             showDialog = false
-            $isVisible.wrappedValue = true
-            $forceShow.wrappedValue = true
+            isVisible = true
+            forceShow = true
         } else {
             showDialog = false
         }
@@ -55,9 +55,11 @@ struct DebugPasswordEntry: ViewModifier {
 }
 
 public extension View {
-    func debugMenuToggle(config: DebugMenuAccessConfig,
-                         isVisible: Binding<Bool>,
-                         forceShow: Binding<Bool>) -> some View {
+    func debugMenuToggle(
+        config: DebugMenuAccessConfig,
+        isVisible: Binding<Bool>,
+        forceShow: Binding<Bool>
+    ) -> some View {
         modifier(DebugPasswordEntry(
             config: config,
             isVisible: isVisible,

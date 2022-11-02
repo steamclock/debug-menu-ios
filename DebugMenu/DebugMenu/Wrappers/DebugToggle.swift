@@ -77,7 +77,7 @@ public struct DebugToggle: DynamicProperty  {
 
         var value: Bool {
             get {
-                if let key {
+                if let key = key {
                     return store.value(forKey: key) as? Bool ?? storedValue
                 } else {
                     return storedValue
@@ -85,7 +85,7 @@ public struct DebugToggle: DynamicProperty  {
             }
             set {
                 objectWillChange.send()
-                if let key {
+                if let key = key {
                     if let optional = newValue as? AnyOptional, optional.isNil {
                         store.removeObject(forKey: key)
                     } else {

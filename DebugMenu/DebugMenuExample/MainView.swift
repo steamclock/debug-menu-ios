@@ -10,7 +10,7 @@ import DebugMenu
 
 struct MainView: View {
 
-    @ObservedObject var debugMenu = DebugMenuStore.shared
+    @StateObject var debugMenu = DebugMenuStore.shared
 
     var body: some View {
         NavigationView {
