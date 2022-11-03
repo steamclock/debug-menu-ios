@@ -15,6 +15,7 @@ public protocol DebugMenuDataSource: ObservableObject {
     func resetToDefaults()
     var includeCommonOptions: Bool { get }
     var debugAlert: DebugAlert? { get set }
+    var isLoading: Bool { get set }
 }
 
 extension DebugMenuDataSource {

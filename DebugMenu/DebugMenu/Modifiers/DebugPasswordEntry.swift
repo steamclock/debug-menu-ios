@@ -5,35 +5,31 @@
 //  Created by Alejandro Zielinsky on 2021-12-06.
 //
 
-import Foundation
 import SwiftUI
 import CommonCrypto
 
 struct DebugPasswordEntry: ViewModifier {
 
-    private let debugDataSource: BaseDebugDataSource
     private let longPressDuration: CGFloat
     private let passwordHash: String
     @State private var showDialog = false
-    private var isVisible: Binding<Bool>
-    private let forceShow: Binding<Bool>?
+    @Binding var isVisible: Bool
+    @Binding var forceShow: Bool
 
-    init(dataSource: BaseDebugDataSource,
-         config: DebugMenuAccessConfig,
+    init(config: DebugMenuAccessConfig,
          isVisible: Binding<Bool>,
-         forceShow: Binding<Bool>? = nil) {
+         forceShow: Binding<Bool>) {
         self.passwordHash = config.passwordSHA256
         self.longPressDuration = config.longPressDuration
-        self.debugDataSource = dataSource
-        self.isVisible = isVisible
-        self.forceShow = forceShow
+        self._isVisible = isVisible
+        self._forceShow = forceShow
     }
 
     func body(content: Content) -> some View {
         content
             .onLongPressGesture(minimumDuration: longPressDuration) {
-                if let forceShow = forceShow?.wrappedValue, forceShow == true {
-                    isVisible.wrappedValue = true
+                if forceShow == true {
+                    isVisible = true
                 } else {
                     showDialog = true
                 }
@@ -49,8 +45,8 @@ struct DebugPasswordEntry: ViewModifier {
         guard let input = input else { return }
         if input.sha256 == self.passwordHash {
             showDialog = false
-            isVisible.wrappedValue = true
-            forceShow?.wrappedValue = true
+            isVisible = true
+            forceShow = true
         } else {
             showDialog = false
         }
@@ -58,12 +54,12 @@ struct DebugPasswordEntry: ViewModifier {
 }
 
 public extension View {
-    func debugMenuToggle(dataSource: BaseDebugDataSource,
-                         config: DebugMenuAccessConfig,
-                         isVisible: Binding<Bool>,
-                         forceShow: Binding<Bool>? = nil) -> some View {
+    func debugMenuToggle(
+        config: DebugMenuAccessConfig,
+        isVisible: Binding<Bool>,
+        forceShow: Binding<Bool>
+    ) -> some View {
         modifier(DebugPasswordEntry(
-            dataSource: dataSource,
             config: config,
             isVisible: isVisible,
             forceShow: forceShow

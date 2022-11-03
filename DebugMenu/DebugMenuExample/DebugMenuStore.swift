@@ -5,7 +5,6 @@
 //  Created by Alejandro Zielinsky on 2021-12-02.
 //
 
-import Foundation
 import DebugMenu
 import SwiftUI
 import Combine
@@ -13,7 +12,7 @@ import switchcraft
 
 public class DebugMenuStore: BaseDebugDataSource {
     
-    @DebugToggle(key: "debugForceFooKey") var debugForceFoo = false
+    @DebugToggle(key: "debugForceFooKey", didSet: debugForceFooSet) var debugForceFoo = false
     @DebugToggle(title: "Show All Foos", key: "showFoosKey") var showAllFoos = false
     @DebugToggle(title: "In Memory Flag") var inMemoryFlag = false
 
@@ -24,17 +23,18 @@ public class DebugMenuStore: BaseDebugDataSource {
 
     let config = DebugMenuAccessConfig(passwordSHA256: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", longPressDuration: 2.0)
     
-    init() {
+    private init() {
         super.init()
         self.addSections([toggleSection, buttonSection, alertSection])
     }
 
-    lazy var toggleSection: DebugSection = {
-        let debugForceFooAction = DebugToggleAction(title: $debugForceFoo.displayTitle, toggle: Binding(get: { self.debugForceFoo }, set: { self.debugForceFoo = $0 }))
-        let showFoosAction = DebugToggleAction(title: $showAllFoos.displayTitle, toggle: Binding(get: { self.showAllFoos }, set: { self.showAllFoos = $0 }))
-        let inMemoryAction = DebugToggleAction(title: $inMemoryFlag.displayTitle, toggle: Binding(get: { self.inMemoryFlag }, set: { self.inMemoryFlag = $0 }))
+    // Trigger additional functionality on toggle
+    private static func debugForceFooSet(value: Bool) {
+        print("DebugForceFoo set to \(value)")
+    }
 
-        return DebugSection(title: "Toggles", actions: [debugForceFooAction, showFoosAction, inMemoryAction])
+    lazy var toggleSection: DebugSection = {
+        DebugSection(title: "Toggles", actions: [$debugForceFoo.action, $showAllFoos.action, $inMemoryFlag.action])
     }()
 
     lazy var buttonSection: DebugSection = {
@@ -60,7 +60,11 @@ public class DebugMenuStore: BaseDebugDataSource {
             Switchcraft.shared.display(from: host)
         }
 
-        return DebugSection(title: "Alerts", actions: [testAlert, testNumericAlert, hostAction])
+        let navigateAction = DebugNavigationAction(title: "SwiftUI View") {
+            Text("Hi")
+        }
+
+        return DebugSection(title: "Alerts", actions: [testAlert, testNumericAlert, hostAction, navigateAction])
     }()
 
     lazy var testAlert: DebugTextFieldAlertAction = {
@@ -71,8 +75,10 @@ public class DebugMenuStore: BaseDebugDataSource {
                 action: { code in
                     guard let code = code, !code.isEmpty else { return }
                     //Simulate Network Call
+                    self.isLoading = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                         //Show Result Alert
+                        self?.isLoading = false
                         self?.debugAlert = DebugAlert(title: "Invalid Code", message: "\(code) is invalid!")
                     }
                 }

@@ -9,78 +9,120 @@ import SwiftUI
 import Combine
 
 @propertyWrapper
-public struct DebugToggle<Value> {
+public struct DebugToggle: DynamicProperty  {
 
     public let displayTitle: String
-    public let defaultValue: Value
-    public let storage: UserDefaults
-    public let key: String?
+    public let defaultValue: Bool
+    public var publisher: PassthroughSubject<Bool, Never>
+    public let didSet: ((Bool) -> Void)?
 
-    private var value: Value
+    @ObservedObject public private(set) var storage: Storage
 
-    @available(*, unavailable)
-    public var wrappedValue: Value {
-        get { fatalError("only works on instance properties of classes") }
-        set { fatalError("only works on instance properties of classes") }
+    public var wrappedValue: Bool {
+        get {
+            storage.value
+        }
+        nonmutating set {
+            storage.value = newValue
+            didSet?(newValue)
+            publisher.send(newValue)
+        }
     }
 
     public var projectedValue: Self {
         self
     }
 
-    public static subscript<EnclosingSelf: ObservableObject>(
-        _enclosingInstance object: EnclosingSelf,
-        wrapped wrappedKeyPath: ReferenceWritableKeyPath<EnclosingSelf, Value>,
-        storage storageKeyPath: ReferenceWritableKeyPath<EnclosingSelf, Self>
-    ) -> Value {
-        get {
-            let propertyWrapper = object[keyPath: storageKeyPath]
-            if let key = propertyWrapper.key {
-                return propertyWrapper.storage.object(forKey: key) as? Value ?? propertyWrapper.defaultValue
-            } else {
-                return propertyWrapper.value
-            }
-        }
-        set {
-            (object.objectWillChange as? ObservableObjectPublisher)?.send()
-            let propertyWrapper = object[keyPath: storageKeyPath]
-            if let key = propertyWrapper.key {
-                if let optional = newValue as? AnyOptional, optional.isNil {
-                    propertyWrapper.storage.removeObject(forKey: key)
-                } else {
-                    propertyWrapper.storage.set(newValue, forKey: key)
-                }
-            } else {
-                object[keyPath: storageKeyPath].value = newValue
-            }
-        }
+    public var action: DebugToggleAction {
+        DebugToggleAction(title: displayTitle, toggle: binding, defaultValue: defaultValue, publisher: publisher)
     }
 
-    public init(wrappedValue: Value,
-                key: String,
-                storage: UserDefaults = .standard) {
-        self.displayTitle = key.camelCaseToWords().replacingOccurrences(of: "Key", with: "")
-        self.defaultValue = wrappedValue
-        self.key = key
-        self.storage = storage
-        self.value = wrappedValue
+    public var binding: Binding<Bool> {
+        Binding(
+            get: { wrappedValue },
+            set: { wrappedValue = $0 }
+        )
     }
 
-    public init(wrappedValue: Value,
-                title: String,
-                key: String? = nil,
-                storage: UserDefaults = .standard) {
+    public init(
+        wrappedValue defaultValue: Bool,
+        title: String? = nil,
+        key: String,
+        storage: UserDefaults = .standard,
+        didSet: ((Bool) -> Void)? = nil
+    ) {
+        self.defaultValue = defaultValue
+        self.displayTitle = title ?? key.camelCaseToWords().replacingOccurrences(of: "Key", with: "").trimmingCharacters(in: .whitespaces)
+        self.publisher = PassthroughSubject<Bool, Never>()
+        self.storage = Storage(defaultValue, key: key, storage: storage)
+        self.didSet = didSet
+    }
+
+    public init(
+        wrappedValue defaultValue: Bool,
+        title: String,
+        didSet: ((Bool) -> Void)? = nil
+    ) {
+        self.defaultValue = defaultValue
         self.displayTitle = title
-        self.defaultValue = wrappedValue
-        self.storage = storage
-        self.key = key
-        self.value = wrappedValue
+        self.publisher = PassthroughSubject<Bool, Never>()
+        self.storage = Storage(defaultValue)
+        self.didSet = didSet
     }
-}
 
-public extension DebugToggle where Value: ExpressibleByNilLiteral {
-    init(title: String) {
-        self.init(wrappedValue: nil, title: title)
+    final public class Storage: NSObject, ObservableObject {
+        let key: String?
+        var storedValue: Bool
+        var store: UserDefaults
+
+        var value: Bool {
+            get {
+                if let key = key {
+                    return store.value(forKey: key) as? Bool ?? storedValue
+                } else {
+                    return storedValue
+                }
+            }
+            set {
+                objectWillChange.send()
+                if let key = key {
+                    if let optional = newValue as? AnyOptional, optional.isNil {
+                        store.removeObject(forKey: key)
+                    } else {
+                        store.setValue(newValue, forKey: key)
+                    }
+                } else {
+                    storedValue = newValue
+                }
+            }
+        }
+
+        init(_ value: Bool) {
+            self.storedValue = value
+            self.store = UserDefaults.standard
+            self.key = nil
+            super.init()
+        }
+
+        init(_ value: Bool, key: String, storage: UserDefaults) {
+            self.storedValue = value
+            self.store = storage
+            self.key = key
+            super.init()
+            store.addObserver(self, forKeyPath: key, options: [.new], context: nil)
+        }
+
+        deinit {
+            store.removeObserver(self, forKeyPath: key ?? "")
+        }
+
+        public override func observeValue(forKeyPath keyPath: String?,
+                                          of object: Any?,
+                                          change: [NSKeyValueChangeKey : Any]?,
+                                          context: UnsafeMutableRawPointer?) {
+
+            value = change?[.newKey] as? Bool ?? storedValue
+        }
     }
 }
 

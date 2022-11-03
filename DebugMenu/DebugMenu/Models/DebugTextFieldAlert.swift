@@ -5,7 +5,6 @@
 //  Created by Alejandro Zielinsky on 2022-03-10.
 //
 
-import Foundation
 import UIKit
 
 public struct DebugTextFieldAlert {

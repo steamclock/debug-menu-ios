@@ -10,7 +10,7 @@ import DebugMenu
 
 struct MainView: View {
 
-    @ObservedObject var debugMenu = DebugMenuStore.shared
+    @StateObject var debugMenu = DebugMenuStore.shared
 
     var body: some View {
         NavigationView {
@@ -23,7 +23,6 @@ struct MainView: View {
                 }
                 Text("Debug Hidden Entry")
                     .debugMenuToggle(
-                        dataSource: debugMenu,
                         config: debugMenu.config,
                         isVisible: $debugMenu.isVisible,
                         forceShow: $debugMenu.forceShow
