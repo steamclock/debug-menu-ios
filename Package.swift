@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "DebugMenu",
     platforms: [
-        .iOS(.v14), .macOS(.v10_14)
+        .iOS(.v15), .macOS(.v10_14)
     ],
     products: [
         .library(

@@ -34,11 +34,17 @@ struct DebugPasswordEntry: ViewModifier {
                     showDialog = true
                 }
             }
-            .debugTextFieldAlert(isPresented: $showDialog, DebugTextFieldAlert(
-                title: "Debug Settings",
-                message: "Enter Password",
-                action: self.onPasswordEntered
-            ))
+            .background {
+                Color.clear
+                    .debugTextFieldAlert(
+                        isPresented: $showDialog,
+                        DebugTextFieldAlert(
+                            title: "Debug Settings",
+                            message: "Enter Password",
+                            action: self.onPasswordEntered
+                        )
+                    )
+            }
     }
 
     private func onPasswordEntered(input: String?) {
