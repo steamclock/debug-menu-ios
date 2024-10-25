@@ -8,10 +8,24 @@
 import SwiftUI
 
 struct DebugButtonRow: View {
+    @State var showConfirmation: Bool = false
     let action: DebugButtonAction
 
     var body: some View {
-        Button(action.title, action: action.action)
-            .foregroundColor(.blue)
+        if let confirmationMessage = action.confirmationMessage {
+            Button(action.title) {
+                showConfirmation = true
+            }
+            .alert("", isPresented: $showConfirmation) {
+                Button("Ok", role: .destructive) {
+                    action.action()
+                }
+            } message: {
+                Text(confirmationMessage)
+            }
+        } else {
+            Button(action.title, action: action.action)
+                .foregroundColor(.blue)
+        }
     }
 }
