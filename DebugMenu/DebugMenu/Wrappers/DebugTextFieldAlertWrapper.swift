@@ -14,7 +14,9 @@ struct DebugTextFieldAlertWrapper<Content: View>: UIViewControllerRepresentable 
     let content: Content
 
     func makeUIViewController(context: UIViewControllerRepresentableContext<DebugTextFieldAlertWrapper>) -> UIHostingController<Content> {
-        UIHostingController(rootView: content)
+        let controller = UIHostingController(rootView: content)
+        controller.view.backgroundColor = .clear
+        return controller
     }
 
     final class Coordinator {
