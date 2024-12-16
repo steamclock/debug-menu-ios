@@ -15,6 +15,7 @@ public struct DebugToggle: DynamicProperty  {
     public let defaultValue: Bool
     public var publisher: PassthroughSubject<Bool, Never>
     public let didSet: ((Bool) -> Void)?
+    public let willSet: (Bool) async -> Bool
 
     @ObservedObject public private(set) var storage: Storage
 
@@ -23,9 +24,13 @@ public struct DebugToggle: DynamicProperty  {
             storage.value
         }
         nonmutating set {
-            storage.value = newValue
-            didSet?(newValue)
-            publisher.send(newValue)
+            Task {
+                if await willSet(newValue) {
+                    storage.value = newValue
+                    didSet?(newValue)
+                    publisher.send(newValue)
+                }
+            }
         }
     }
 
@@ -49,25 +54,29 @@ public struct DebugToggle: DynamicProperty  {
         title: String? = nil,
         key: String,
         storage: UserDefaults = .standard,
-        didSet: ((Bool) -> Void)? = nil
+        didSet: ((Bool) -> Void)? = nil,
+        willSet: @escaping (Bool) async -> Bool = { _ in true }
     ) {
         self.defaultValue = defaultValue
         self.displayTitle = title ?? key.camelCaseToWords().replacingOccurrences(of: "Key", with: "").trimmingCharacters(in: .whitespaces)
         self.publisher = PassthroughSubject<Bool, Never>()
         self.storage = Storage(defaultValue, key: key, storage: storage)
         self.didSet = didSet
+        self.willSet = willSet
     }
 
     public init(
         wrappedValue defaultValue: Bool,
         title: String,
-        didSet: ((Bool) -> Void)? = nil
+        didSet: ((Bool) -> Void)? = nil,
+        willSet: @escaping (Bool) async -> Bool = { _ in true }
     ) {
         self.defaultValue = defaultValue
         self.displayTitle = title
         self.publisher = PassthroughSubject<Bool, Never>()
         self.storage = Storage(defaultValue)
         self.didSet = didSet
+        self.willSet = willSet
     }
 
     final public class Storage: NSObject, ObservableObject {
