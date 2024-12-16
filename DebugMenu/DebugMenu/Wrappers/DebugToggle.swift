@@ -24,7 +24,7 @@ public struct DebugToggle: DynamicProperty  {
             storage.value
         }
         nonmutating set {
-            Task { @MainActor in
+            Task {
                 if await willSet(newValue) {
                     storage.value = newValue
                     didSet?(newValue)
