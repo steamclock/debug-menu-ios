@@ -49,7 +49,11 @@ struct DebugMenuScreen: View {
 
     var body: some View {
         List {
-            DebugNodeList(nodes: nodes, menu: menu)
+            ForEach(nodes.listSections) { section in
+                Section(header: section.title.map(Text.init)) {
+                    DebugNodeList(nodes: section.nodes, menu: menu)
+                }
+            }
         }
         .navigationTitle(title)
     }
@@ -86,15 +90,6 @@ private struct DebugNodeView: View {
             } label: {
                 Text(container.title)
             }
-        }
-    }
-}
-
-extension DebugMenuNode: Identifiable {
-    var id: String {
-        switch self {
-        case .row(let item): item.id
-        case .container(let container): container.id
         }
     }
 }

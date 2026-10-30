@@ -45,6 +45,23 @@ final class DebugMenuBuilderTests: XCTestCase {
         XCTAssertEqual(custom.text(), "custom text")
     }
 
+    func testListSectionsWrapLooseRowsInUntitledSections() {
+        let menu = DebugMenu {
+            DebugInfo("Build", value: "42")
+            DebugSubmenu("Cache") {}
+            DebugSection("Features") {
+                DebugInfo("Foo", value: nil)
+            }
+            DebugSection("Account") {}
+            DebugInfo("Footer", value: nil)
+        }
+
+        let sections = menu.children.listSections
+        XCTAssertEqual(sections.map(\.id), ["Build", "Features", "Account", "Footer"])
+        XCTAssertEqual(sections.map(\.title), [nil, "Features", "Account", nil])
+        XCTAssertEqual(sections.map { $0.nodes.map(\.id) }, [["Build", "Cache"], ["Features/Foo"], [], ["Footer"]])
+    }
+
     func testIDsAreIdenticalAcrossBuilds() {
         let app = TestAppState()
         XCTAssertEqual(allIDs(makeFullMenu(app).children), allIDs(makeFullMenu(app).children))

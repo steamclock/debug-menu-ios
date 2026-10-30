@@ -73,6 +73,53 @@ enum DebugMenuNode: Sendable {
     case container(DebugContainer)
 }
 
+extension DebugMenuNode: Identifiable {
+    var id: String {
+        switch self {
+        case .row(let item): item.id
+        case .container(let container): container.id
+        }
+    }
+}
+
+/// One section of a menu screen's list: a `DebugSection`, or an untitled run of the nodes between sections.
+struct DebugListSection: Identifiable {
+    let id: String
+    let title: String?
+    let nodes: [DebugMenuNode]
+}
+
+extension [DebugMenuNode] {
+    /// These nodes as list sections, so a screen's list holds only sections.
+    ///
+    /// A SwiftUI `List` that mixes loose rows and sections at the top level shows sections that start offscreen
+    /// as blank rows (seen on iOS 18.5), so each run of loose nodes goes in an untitled section.
+    var listSections: [DebugListSection] {
+        var sections: [DebugListSection] = []
+        var looseNodes: [DebugMenuNode] = []
+        for node in self {
+            guard case .container(let container) = node, container.style == .section else {
+                looseNodes.append(node)
+                continue
+            }
+            sections.appendUntitled(&looseNodes)
+            sections.append(DebugListSection(id: container.id, title: container.title, nodes: container.children))
+        }
+        sections.appendUntitled(&looseNodes)
+        return sections
+    }
+}
+
+private extension [DebugListSection] {
+    mutating func appendUntitled(_ nodes: inout [DebugMenuNode]) {
+        guard let first = nodes.first else {
+            return
+        }
+        append(DebugListSection(id: first.id, title: nil, nodes: nodes))
+        nodes = []
+    }
+}
+
 /// A section or submenu and its children.
 struct DebugContainer: Sendable {
     enum Style: String, Sendable {
