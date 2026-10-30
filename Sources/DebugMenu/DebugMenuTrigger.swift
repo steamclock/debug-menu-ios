@@ -57,7 +57,7 @@ private struct DebugMenuSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        DebugMenuNavigation {
+        NavigationStack {
             DebugMenuGate(lock: lock, menu: menu)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {

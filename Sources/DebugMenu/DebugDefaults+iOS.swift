@@ -68,7 +68,7 @@ public extension DebugLogDestination {
             case .file(let url):
                 return url
             case .data(let data, let fileName):
-                let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                let url = URL.temporaryDirectory.appending(path: fileName)
                 try data.write(to: url)
                 return url
             }

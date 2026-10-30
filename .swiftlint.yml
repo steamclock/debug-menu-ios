@@ -10,3 +10,6 @@ disabled_rules:
 line_length:
   warning: 140
   ignores_comments: true
+# Views read `DebugMenuChanges.generation` with `let _ =` to observe it, and `_ =` isn't allowed in a view body.
+redundant_discardable_let:
+  ignore_swiftui_view_bodies: true

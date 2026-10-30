@@ -4,8 +4,8 @@ import SwiftUI
 
 private let logger = Logger(subsystem: "DebugMenu", category: "DebugMenuView")
 
-/// Shows a debug menu as a list. Put it in a `NavigationView` or `NavigationStack`, since submenus and pickers
-/// push screens. `.debugMenuTrigger()` does that for you.
+/// Shows a debug menu as a list. Put it in a `NavigationStack`, since submenus and pickers push screens.
+/// `.debugMenuTrigger()` does that for you.
 ///
 /// The menu is rebuilt from `content` each time the view updates, so `if` and `for` in the menu follow the app's
 /// state. Rows change values through `DebugMenu.dispatch(_:)`, the same path a remote uses.
@@ -13,31 +13,30 @@ public struct DebugMenuView: View {
     static let title = "Debug Menu"
 
     private let content: @MainActor () -> DebugMenuGroup
-    @ObservedObject private var changes: DebugMenuChanges
 
     /// Creates a menu view from the same content `DebugMenu { }` takes.
     public init(@DebugMenuBuilder content: @escaping @MainActor () -> DebugMenuGroup) {
         self.content = content
-        changes = .shared
     }
 
+    /// The menu's top-level screen, with `DebugMenuChanges.shared` in the environment for its rows.
     public var body: some View {
-        let menu = DebugMenu(content)
-        DebugMenuScreen(title: Self.title, nodes: menu.children, menu: menu)
+        DebugMenuRoot(content: content)
+            .environment(DebugMenuChanges.shared)
     }
 }
 
-/// Wraps the menu in navigation, with `NavigationStack` where it's available.
-struct DebugMenuNavigation<Content: View>: View {
-    @ViewBuilder let content: Content
+/// Builds the menu and shows its top-level screen.
+private struct DebugMenuRoot: View {
+    let content: @MainActor () -> DebugMenuGroup
+
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
-        if #available(iOS 16, *) {
-            NavigationStack { content }
-        } else {
-            NavigationView { content }
-                .navigationViewStyle(.stack)
-        }
+        // Rebuild on every change, so `if` and `for` over storage SwiftUI can't observe follow it too.
+        let _ = changes.generation
+        let menu = DebugMenu(content)
+        DebugMenuScreen(title: DebugMenuView.title, nodes: menu.children, menu: menu)
     }
 }
 
@@ -74,10 +73,11 @@ private struct DebugNodeView: View {
     let node: DebugMenuNode
     let menu: DebugMenu
 
-    /// Re-reads `isVisible` on every change. See `DebugItemRow`.
-    @ObservedObject private var changes = DebugMenuChanges.shared
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        // Re-reads `isVisible` on every change. See `DebugItemRow`.
+        let _ = changes.generation
         switch node {
         case .row(let item):
             if item.availability.isVisible() {
@@ -89,7 +89,9 @@ private struct DebugNodeView: View {
             }
         case .container(let container):
             NavigationLink {
+                // A pushed screen doesn't inherit environment values set inside the `NavigationStack`, so pass it on.
                 DebugMenuScreen(title: container.title, nodes: container.children, menu: menu)
+                    .environment(changes)
             } label: {
                 Text(container.title)
             }

@@ -5,8 +5,9 @@ import UIKit
 /// Picks the view for a row's kind. Each row view reads the app's value through `get` in its own `body`.
 ///
 /// A row's closures often compare equal from one menu build to the next (a closure that captures only the app's
-/// settings object, say), so SwiftUI would skip the row when the menu rebuilds. Every view that calls an app closure
-/// in its `body` observes `DebugMenuChanges` itself, so it reads the value again.
+/// settings object, say), so SwiftUI would skip the row when the menu rebuilds. Observation only catches changes to
+/// `@Observable` models, so every view that calls an app closure in its `body` also reads
+/// `DebugMenuChanges.generation`, and reads the value again after a command or `send()`.
 struct DebugItemRow: View {
     let item: DebugItem
     let menu: DebugMenu
@@ -36,9 +37,10 @@ private struct DebugToggleRow: View {
 
     @State private var pendingCommand: DebugCommand?
 
-    @ObservedObject private var changes = DebugMenuChanges.shared
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        let _ = changes.generation
         Toggle(isOn: Binding(get: get, set: request)) {
             DebugRowTitle(item: item)
         }
@@ -58,9 +60,10 @@ private struct DebugActionRow: View {
 
     @State private var pendingCommand: DebugCommand?
 
-    @ObservedObject private var changes = DebugMenuChanges.shared
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        let _ = changes.generation
         Button(role: item.buttonRole) {
             item.request(command, pendingCommand: $pendingCommand, run: menu.start)
         } label: {
@@ -79,9 +82,10 @@ private struct DebugAsyncActionRow: View {
     @State private var isRunning = false
     @State private var result: DebugCommandResult?
 
-    @ObservedObject private var changes = DebugMenuChanges.shared
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        let _ = changes.generation
         Button(role: item.buttonRole) {
             item.request(.runAsyncAction(rowID: item.id), pendingCommand: $pendingCommand, run: run)
         } label: {
@@ -122,7 +126,7 @@ private struct DebugAsyncActionRow: View {
 }
 
 private struct DebugInfoRow: View {
-    private static let copiedDuration: UInt64 = 1_500_000_000
+    private static let copiedDuration = Duration.seconds(1.5)
     private static let emptyValue = "None"
     private static let copiedText = "Copied"
     private static let copyHint = "Copies the value"
@@ -132,9 +136,10 @@ private struct DebugInfoRow: View {
 
     @State private var isCopied = false
 
-    @ObservedObject private var changes = DebugMenuChanges.shared
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        let _ = changes.generation
         let currentValue = value()
         Button {
             UIPasteboard.general.string = currentValue
@@ -154,7 +159,7 @@ private struct DebugInfoRow: View {
         .task(id: isCopied) {
             guard isCopied else { return }
             // Sleep only throws on cancellation, when the row is gone and there's nothing to reset.
-            try? await Task.sleep(nanoseconds: Self.copiedDuration)
+            try? await Task.sleep(for: Self.copiedDuration)
             isCopied = false
         }
     }
@@ -165,12 +170,15 @@ private struct DebugPickerRow: View {
     let picker: DebugPickerConfiguration
     let menu: DebugMenu
 
-    @ObservedObject private var changes = DebugMenuChanges.shared
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        let _ = changes.generation
         let selected = picker.selectedOption
         NavigationLink {
+            // A pushed screen doesn't inherit environment values set inside the `NavigationStack`, so pass it on.
             DebugPickerScreen(item: item, picker: picker, menu: menu)
+                .environment(changes)
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 DebugRowTitle(item: item)
@@ -218,9 +226,10 @@ private struct DebugPickerOptionRow: View {
     let option: DebugPickerOption
     let choose: @MainActor () -> Void
 
-    @ObservedObject private var changes = DebugMenuChanges.shared
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        let _ = changes.generation
         let isSelected = option.isSelected()
         Button {
             if !isSelected {
@@ -250,9 +259,10 @@ private struct DebugPickerOptionRow: View {
 private struct DebugRowTitle: View {
     let item: DebugItem
 
-    @ObservedObject private var changes = DebugMenuChanges.shared
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        let _ = changes.generation
         let isDisabled = item.availability.isDisabled()
         VStack(alignment: .leading, spacing: 5) {
             Text(item.title)
