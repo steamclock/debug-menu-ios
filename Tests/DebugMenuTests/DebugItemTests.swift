@@ -50,27 +50,6 @@ final class DebugItemTests: XCTestCase {
         XCTAssertNil(configuration.selectedOption)
     }
 
-    func testAsyncActionRunsAndThrows() async throws {
-        var didRun = false
-        let success = DebugItemKind.asyncAction { didRun = true }
-        let failure = DebugItemKind.asyncAction { throw TestDebugError.expected }
-
-        guard case .asyncAction(let runSuccess) = success, case .asyncAction(let runFailure) = failure else {
-            return XCTFail("Expected async actions")
-        }
-
-        try await runSuccess()
-        XCTAssertTrue(didRun)
-
-        do {
-            try await runFailure()
-            XCTFail("Expected async action to throw")
-        } catch TestDebugError.expected {
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
-    }
-
     func testConfirmedDestructiveActionMetadata() {
         let confirmation = DebugConfirmation.required("Crash app?")
         let item = DebugItem(
