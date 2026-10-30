@@ -92,7 +92,9 @@ private func presentShareSheet(_ urls: [URL]) throws {
     let controller = UIActivityViewController(activityItems: urls, applicationActivities: nil)
     // iPad shows the share sheet as a popover, which needs an anchor.
     controller.popoverPresentationController?.sourceView = presenter.view
-    controller.popoverPresentationController?.sourceRect = CGRect(origin: presenter.view.center, size: .zero)
+    // sourceRect is in sourceView's own coordinates, so use its bounds, not its frame-relative center.
+    let bounds = presenter.view.bounds
+    controller.popoverPresentationController?.sourceRect = CGRect(x: bounds.midX, y: bounds.midY, width: 0, height: 0)
     controller.popoverPresentationController?.permittedArrowDirections = []
     presenter.present(controller, animated: true)
 }
