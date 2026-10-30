@@ -78,6 +78,16 @@ final class DebugMenuRemoteTests: XCTestCase {
         XCTAssertEqual(unavailable, .failure(.unavailable(rowID: "Actions/Locked")))
         XCTAssertEqual(failed, .failure(.actionFailed(rowID: "Actions/Fail", message: "expected")))
     }
+
+    func testDispatchSignalsChanges() async {
+        let app = TestAppState()
+        let menu = makeFullMenu(app)
+        let before = DebugMenuChanges.shared.generation
+
+        _ = await menu.dispatch(.setToggle(rowID: "Features/Show all foos", isOn: true))
+
+        XCTAssertEqual(DebugMenuChanges.shared.generation, before + 1)
+    }
 }
 
 /// Talks to the menu only through encoded snapshots, commands and results, as a remote would.

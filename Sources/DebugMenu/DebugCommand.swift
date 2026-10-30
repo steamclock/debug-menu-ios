@@ -44,8 +44,10 @@ public extension DebugMenu {
     /// Applies a command to the row it addresses. Async actions are awaited, and their errors returned.
     ///
     /// Confirmations are not shown here. The caller asks first, using the row's `confirmation`.
+    /// Afterwards `DebugMenuChanges.shared` is sent, since the command may have changed what rows show.
     @MainActor
     func dispatch(_ command: DebugCommand) async -> DebugCommandResult {
+        defer { DebugMenuChanges.shared.send() }
         do {
             try await apply(command)
             return .success
