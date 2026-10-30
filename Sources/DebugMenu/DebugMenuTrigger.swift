@@ -55,6 +55,8 @@ private struct DebugMenuTrigger: ViewModifier {
 }
 
 private struct DebugMenuSheet: View {
+    private static let doneTitle = "Done"
+
     let lock: DebugMenuLock
     let changes: DebugMenuChanges
     let menu: @MainActor () -> DebugMenuGroup
@@ -66,7 +68,7 @@ private struct DebugMenuSheet: View {
             DebugMenuGate(lock: lock, changes: changes, menu: menu)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Done") { dismiss() }
+                        Button(Self.doneTitle) { dismiss() }
                     }
                 }
         }
@@ -75,6 +77,10 @@ private struct DebugMenuSheet: View {
 
 /// Shows a password form until the lock is open, then the menu.
 private struct DebugMenuGate: View {
+    private static let passwordPlaceholder = "Password"
+    private static let unlockTitle = "Unlock"
+    private static let failureMessage = "Incorrect password"
+
     let lock: DebugMenuLock
     let changes: DebugMenuChanges
     let menu: @MainActor () -> DebugMenuGroup
@@ -94,15 +100,15 @@ private struct DebugMenuGate: View {
     private var passwordForm: some View {
         Form {
             Section {
-                SecureField("Password", text: $password)
+                SecureField(Self.passwordPlaceholder, text: $password)
                     .textContentType(.password)
                     .submitLabel(.go)
                     .onSubmit(submit)
-                Button("Unlock", action: submit)
+                Button(Self.unlockTitle, action: submit)
                     .disabled(password.isEmpty)
             } footer: {
                 if showsFailure {
-                    Text("Incorrect password")
+                    Text(Self.failureMessage)
                         .foregroundColor(.red)
                 }
             }

@@ -10,6 +10,10 @@ public enum DebugItemRole: String, Codable, Sendable {
 
 /// A confirmation shown before a row's action runs.
 public struct DebugConfirmation: Equatable, Codable, Sendable {
+    // `@usableFromInline` lets the public initializers' default arguments use these without making them API.
+    @usableFromInline static let defaultConfirmTitle = "Continue"
+    @usableFromInline static let defaultCancelTitle = "Cancel"
+
     /// The alert title.
     public let title: String
     /// Optional detail shown under the title.
@@ -23,8 +27,8 @@ public struct DebugConfirmation: Equatable, Codable, Sendable {
     public init(
         title: String,
         message: String? = nil,
-        confirmTitle: String = "Continue",
-        cancelTitle: String = "Cancel"
+        confirmTitle: String = defaultConfirmTitle,
+        cancelTitle: String = defaultCancelTitle
     ) {
         self.title = title
         self.message = message
@@ -36,8 +40,8 @@ public struct DebugConfirmation: Equatable, Codable, Sendable {
     public static func required(
         _ title: String,
         message: String? = nil,
-        confirmTitle: String = "Continue",
-        cancelTitle: String = "Cancel"
+        confirmTitle: String = defaultConfirmTitle,
+        cancelTitle: String = defaultCancelTitle
     ) -> DebugConfirmation {
         DebugConfirmation(title: title, message: message, confirmTitle: confirmTitle, cancelTitle: cancelTitle)
     }

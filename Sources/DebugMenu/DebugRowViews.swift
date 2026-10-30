@@ -223,6 +223,8 @@ private struct DebugPickerScreen: View {
 }
 
 private struct DebugPickerOptionRow: View {
+    private static let selectedImageName = "checkmark"
+
     let option: DebugPickerOption
     let choose: @MainActor () -> Void
 
@@ -248,7 +250,7 @@ private struct DebugPickerOptionRow: View {
                 }
                 Spacer()
                 if isSelected {
-                    Image(systemName: "checkmark")
+                    Image(systemName: Self.selectedImageName)
                         .foregroundColor(.accentColor)
                 }
             }
@@ -335,6 +337,8 @@ private extension DebugItem {
 private extension DebugCommandResult {
     private static let successMessage = "Succeeded"
     private static let failurePrefix = "Failed: "
+    private static let successImageName = "checkmark.circle"
+    private static let failureImageName = "exclamationmark.triangle"
 
     var message: String {
         switch self {
@@ -345,7 +349,7 @@ private extension DebugCommandResult {
     }
 
     var systemImageName: String {
-        self == .success ? "checkmark.circle" : "exclamationmark.triangle"
+        self == .success ? Self.successImageName : Self.failureImageName
     }
 
     var color: Color {
