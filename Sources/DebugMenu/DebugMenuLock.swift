@@ -2,7 +2,8 @@ import Foundation
 
 /// Decides whether the menu needs a password, and remembers a correct one across launches.
 ///
-/// Only an "unlocked" flag is stored, never the password.
+/// Only a marker of which policy was unlocked is stored, never the password. Changing the password hash locks the
+/// menu again.
 struct DebugMenuLock {
     static let unlockedKey = "DebugMenu.isUnlocked"
 
@@ -16,7 +17,10 @@ struct DebugMenuLock {
 
     /// True when the policy has no password, or a correct one was entered before.
     var isUnlocked: Bool {
-        !policy.requiresChallenge || defaults.bool(forKey: Self.unlockedKey)
+        guard let unlockToken = policy.unlockToken else {
+            return true
+        }
+        return defaults.string(forKey: Self.unlockedKey) == unlockToken
     }
 
     /// Returns whether `password` is correct, and if it is, remembers the unlock.
@@ -24,7 +28,7 @@ struct DebugMenuLock {
         guard policy.allowsAccess(password: password) else {
             return false
         }
-        defaults.set(true, forKey: Self.unlockedKey)
+        defaults.set(policy.unlockToken, forKey: Self.unlockedKey)
         return true
     }
 }

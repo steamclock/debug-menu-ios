@@ -10,7 +10,7 @@ private let logger = Logger(subsystem: "DebugMenu", category: "DebugMenuView")
 /// The menu is rebuilt from `content` each time the view updates, so `if` and `for` in the menu follow the app's
 /// state. Rows change values through `DebugMenu.dispatch(_:)`, the same path a remote uses.
 public struct DebugMenuView: View {
-    private static let title = "Debug Menu"
+    static let title = "Debug Menu"
 
     private let content: @MainActor () -> DebugMenuGroup
     @ObservedObject private var changes: DebugMenuChanges
@@ -104,9 +104,16 @@ extension DebugMenu {
         let result = await dispatch(command)
         if case .failure(let error) = result {
             let errorDescription = String(describing: error)
-            logger.error("Debug menu command failed. row: \(command.rowID, privacy: .public), error: \(errorDescription, privacy: .public)")
+            logger.error(
+                "Debug menu command failed. row: \(command.rowID, privacy: .public), error: \(errorDescription, privacy: .private)"
+            )
         }
         return result
+    }
+
+    /// Starts `command` without waiting for its result.
+    func start(_ command: DebugCommand) {
+        Task { await perform(command) }
     }
 }
 #endif

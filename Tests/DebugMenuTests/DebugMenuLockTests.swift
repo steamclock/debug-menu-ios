@@ -35,6 +35,14 @@ final class DebugMenuLockTests: XCTestCase {
         XCTAssertTrue(DebugMenuLock(policy: .passwordSHA256(Self.debugHash), defaults: defaults).isUnlocked)
     }
 
+    func testChangedPasswordLocksAgain() {
+        // SHA-256 of "release".
+        let releaseHash = "a4d451ec23463726f72c43d64c710968f6b602cd653b4de8adee1b556240a829"
+        XCTAssertTrue(DebugMenuLock(policy: .passwordSHA256(Self.debugHash), defaults: defaults).unlock(password: "debug"))
+
+        XCTAssertFalse(DebugMenuLock(policy: .passwordSHA256(releaseHash), defaults: defaults).isUnlocked)
+    }
+
     func testAccessPolicy() {
         XCTAssertTrue(DebugMenuAccessPolicy.passwordSHA256(Self.debugHash).allowsAccess(password: "debug"))
         XCTAssertFalse(DebugMenuAccessPolicy.passwordSHA256(Self.debugHash).allowsAccess(password: "release"))

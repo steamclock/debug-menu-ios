@@ -5,7 +5,9 @@ import Foundation
 public enum DebugMenuAccessPolicy: Sendable {
     /// No password.
     case none
-    /// A password, given as the hex SHA-256 hash of the password so the password itself isn't in the app.
+    /// A password, given as the hex SHA-256 hash of the password so the password isn't in the app as plain text.
+    /// The hash is unsalted, so a short password can be recovered from the binary. It keeps casual users out of the
+    /// menu, nothing more.
     case passwordSHA256(String)
     /// A password checked by your own closure.
     case custom(@Sendable (String) -> Bool)
@@ -22,14 +24,20 @@ public enum DebugMenuAccessPolicy: Sendable {
         }
     }
 
-    var requiresChallenge: Bool {
+    /// What the lock stores after a correct password, so a changed hash locks the menu again. `nil` when there's no
+    /// password.
+    var unlockToken: String? {
         switch self {
         case .none:
-            false
-        case .passwordSHA256, .custom:
-            true
+            nil
+        case .passwordSHA256(let expectedHash):
+            expectedHash.lowercased()
+        case .custom:
+            Self.customUnlockToken
         }
     }
+
+    private static let customUnlockToken = "custom"
 
     private static func sha256Hex(_ value: String) -> String {
         let digest = SHA256.hash(data: Data(value.utf8))
