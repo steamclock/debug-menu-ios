@@ -9,6 +9,7 @@ struct ExampleMenu: DebugMenuContent {
         DebugInfo.defaults
         DebugPicker.environment(options: AppEnvironment.allCases, optionTitle: \.title,
                                 get: { settings.environment }, set: { settings.environment = $0 })
+            .confirmation(.required("Switch environment?", message: "You'll be signed out."))
         DebugToggle.advancedLogging(get: { settings.isAdvancedLoggingEnabled }, set: { settings.isAdvancedLoggingEnabled = $0 })
         DebugButton.sendLogs(logs: { settings.logFiles }, destination: .shareSheet)
 

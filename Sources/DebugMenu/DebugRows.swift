@@ -49,6 +49,13 @@ public extension DebugRow {
         )
         return copy
     }
+
+    /// Asks the user to confirm before the row changes a value or runs its action.
+    func confirmation(_ confirmation: DebugConfirmation) -> Self {
+        var copy = self
+        copy.item.confirmation = confirmation
+        return copy
+    }
 }
 
 /// An on/off row that reads and writes a Bool the app owns.

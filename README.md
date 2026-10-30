@@ -108,6 +108,13 @@ DebugButton("Clear cache", role: .destructive, confirmation: .required("Clear th
 ```
 
 `.required(_:message:confirmTitle:cancelTitle:)` takes an optional message and button labels too.
+Toggles and pickers ask the same way with the `.confirmation(_:)` modifier:
+
+```swift
+DebugPicker.environment(options: AppEnvironment.allCases, optionTitle: \.title,
+                        get: { settings.environment }, set: { settings.environment = $0 })
+    .confirmation(.required("Switch environment?", message: "You'll be signed out."))
+```
 
 ### Picker
 

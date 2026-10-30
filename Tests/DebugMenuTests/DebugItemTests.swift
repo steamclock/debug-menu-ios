@@ -87,6 +87,14 @@ final class DebugItemTests: XCTestCase {
         XCTAssertEqual(confirmation.cancelTitle, "Cancel")
     }
 
+    @MainActor
+    func testToggleConfirmationModifier() {
+        let confirmation = DebugConfirmation.required("Switch?")
+        let toggle = DebugToggle("Flag", get: { false }, set: { _ in }).confirmation(confirmation)
+
+        XCTAssertEqual(toggle.item.confirmation, confirmation)
+    }
+
     func testAvailabilityIsReadEachTime() {
         let app = TestAppState()
         let availability = DebugItemAvailability(
