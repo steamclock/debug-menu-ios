@@ -74,6 +74,9 @@ private struct DebugNodeView: View {
     let node: DebugMenuNode
     let menu: DebugMenu
 
+    /// Re-reads `isVisible` on every change. See `DebugItemRow`.
+    @ObservedObject private var changes = DebugMenuChanges.shared
+
     var body: some View {
         switch node {
         case .row(let item):

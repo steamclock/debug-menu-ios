@@ -3,6 +3,10 @@ import SwiftUI
 import UIKit
 
 /// Picks the view for a row's kind. Each row view reads the app's value through `get` in its own `body`.
+///
+/// A row's closures often compare equal from one menu build to the next (a closure that captures only the app's
+/// settings object, say), so SwiftUI would skip the row when the menu rebuilds. Every view that calls an app closure
+/// in its `body` observes `DebugMenuChanges` itself, so it reads the value again.
 struct DebugItemRow: View {
     let item: DebugItem
     let menu: DebugMenu
@@ -32,6 +36,8 @@ private struct DebugToggleRow: View {
 
     @State private var pendingCommand: DebugCommand?
 
+    @ObservedObject private var changes = DebugMenuChanges.shared
+
     var body: some View {
         Toggle(isOn: Binding(get: get, set: request)) {
             DebugRowTitle(item: item)
@@ -57,6 +63,8 @@ private struct DebugActionRow: View {
 
     @State private var pendingCommand: DebugCommand?
 
+    @ObservedObject private var changes = DebugMenuChanges.shared
+
     var body: some View {
         Button(role: item.buttonRole) {
             if item.confirmation == nil {
@@ -79,6 +87,8 @@ private struct DebugAsyncActionRow: View {
     @State private var pendingCommand: DebugCommand?
     @State private var isRunning = false
     @State private var result: DebugCommandResult?
+
+    @ObservedObject private var changes = DebugMenuChanges.shared
 
     var body: some View {
         Button(role: item.buttonRole) {
@@ -133,6 +143,8 @@ private struct DebugInfoRow: View {
 
     @State private var isCopied = false
 
+    @ObservedObject private var changes = DebugMenuChanges.shared
+
     var body: some View {
         let currentValue = value()
         Button {
@@ -163,6 +175,8 @@ private struct DebugPickerRow: View {
     let item: DebugItem
     let picker: DebugPickerConfiguration
     let menu: DebugMenu
+
+    @ObservedObject private var changes = DebugMenuChanges.shared
 
     var body: some View {
         let selected = picker.selectedOption
@@ -220,6 +234,8 @@ private struct DebugPickerOptionRow: View {
     let option: DebugPickerOption
     let choose: @MainActor () -> Void
 
+    @ObservedObject private var changes = DebugMenuChanges.shared
+
     var body: some View {
         let isSelected = option.isSelected()
         Button {
@@ -249,6 +265,8 @@ private struct DebugPickerOptionRow: View {
 
 private struct DebugRowTitle: View {
     let item: DebugItem
+
+    @ObservedObject private var changes = DebugMenuChanges.shared
 
     var body: some View {
         let isDisabled = item.availability.isDisabled()
