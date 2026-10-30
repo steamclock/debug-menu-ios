@@ -40,15 +40,15 @@ final class DebugMenuRemoteTests: XCTestCase {
         let snapshot = makeFullMenu(app).snapshot()
 
         XCTAssertEqual(snapshot.nodes.map(\.kind), [.section, .submenu])
-        XCTAssertEqual(snapshot.nodes[0].children?.map(\.kind), [.toggle, .picker, .picker, .info, .custom])
-        XCTAssertEqual(snapshot.nodes[1].children?.map(\.kind), [.action, .asyncAction, .asyncAction, .action])
+        XCTAssertEqual(snapshot.nodes[0].children.map(\.kind), [.toggle, .picker, .picker, .info, .custom])
+        XCTAssertEqual(snapshot.nodes[1].children.map(\.kind), [.action, .asyncAction, .asyncAction, .action])
 
-        let server = try XCTUnwrap(snapshot.nodes[0].children?[2])
+        let server = try XCTUnwrap(snapshot.nodes[0].children[2])
         XCTAssertEqual(server.pickerOptions?.map(\.id), ["https://prod.example.com", "https://staging.example.com"])
         XCTAssertEqual(server.selectedOptionID, "https://prod.example.com")
-        XCTAssertEqual(snapshot.nodes[0].children?[3].content, .info(text: "12 KB"))
-        XCTAssertEqual(snapshot.nodes[0].children?[4].content, .custom(text: "custom text"))
-        XCTAssertEqual(snapshot.nodes[1].children?[3].isDisabled, true)
+        XCTAssertEqual(snapshot.nodes[0].children[3].content, .info(text: "12 KB"))
+        XCTAssertEqual(snapshot.nodes[0].children[4].content, .custom(text: "custom text"))
+        XCTAssertEqual(snapshot.nodes[1].children[3].isDisabled, true)
     }
 
     func testSnapshotsAreIdenticalAcrossBuilds() throws {
@@ -120,7 +120,7 @@ private struct RemoteStandIn {
     }
 
     private func flatten(_ nodes: [DebugMenuSnapshot.Node]) -> [DebugMenuSnapshot.Node] {
-        nodes.flatMap { [$0] + flatten($0.children ?? []) }
+        nodes.flatMap { [$0] + flatten($0.children) }
     }
 }
 

@@ -26,9 +26,9 @@ public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
     /// What a node is, with the state that only its kind has.
     public enum Content: Codable, Sendable, Equatable {
         /// A titled group of rows.
-        case section
+        case section(children: [Node])
         /// A row that opens a nested menu.
-        case submenu
+        case submenu(children: [Node])
         /// An on/off row and its current value.
         case toggle(isOn: Bool)
         /// A button. Run it with `DebugCommand.runAction`.
@@ -75,8 +75,6 @@ public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
         public let content: Content
         /// The node's title.
         public let title: String
-        /// Child nodes of a section or submenu, `nil` for rows.
-        public let children: [Node]?
         /// How the row is treated visually.
         public let role: DebugItemRole
         /// Help text shown under the row.
@@ -93,6 +91,14 @@ public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
         /// What kind of node this is. The same as `content.kind`.
         public var kind: Kind {
             content.kind
+        }
+
+        /// Child nodes of a section or submenu. Empty for rows.
+        public var children: [Node] {
+            switch content {
+            case .section(let children), .submenu(let children): children
+            case .toggle, .action, .asyncAction, .info, .picker, .custom: []
+            }
         }
     }
 
@@ -145,9 +151,10 @@ private extension DebugMenuSnapshot.Node {
     init(_ container: DebugContainer) {
         self.init(
             id: container.id,
-            content: container.style == .section ? .section : .submenu,
+            content: container.style == .section
+                ? .section(children: container.children.map(Self.init))
+                : .submenu(children: container.children.map(Self.init)),
             title: container.title,
-            children: container.children.map(Self.init),
             role: .normal,
             helpText: nil,
             isVisible: true,
@@ -163,7 +170,6 @@ private extension DebugMenuSnapshot.Node {
             id: item.id,
             content: item.kind.snapshotContent,
             title: item.title,
-            children: nil,
             role: item.role,
             helpText: item.helpText,
             isVisible: item.availability.isVisible(),
