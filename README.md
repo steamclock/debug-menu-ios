@@ -318,19 +318,17 @@ DebugButton.sendLogs(logs: { settings.logFiles }, destination: .shareSheet)
 ### Environments
 
 The environment picker takes your own type, as long as it conforms to `DebugEnvironment`, which needs a
-`title` and a `url`. The picker shows each URL under its title. Anything else an environment needs (API
-keys, other hosts) goes on your type too:
+`title` and a `url`. The picker shows each URL under its title. A struct keeps it short, and anything
+else an environment needs (API keys, other hosts) is another property:
 
 ```swift
-enum AppEnvironment: DebugEnvironment {
-    case production
-    case staging
-    case custom(URL)
+struct AppEnvironment: DebugEnvironment {
+    let title: String
+    let url: URL
 
-    static let presets: [AppEnvironment] = [.production, .staging]
-
-    var title: String { … }
-    var url: URL { … }
+    static let production = AppEnvironment(title: "Production", url: URL(string: "https://api.example.com")!)
+    static let staging = AppEnvironment(title: "Staging", url: URL(string: "https://staging.api.example.com")!)
+    static let presets = [production, staging]
 }
 ```
 
@@ -340,7 +338,7 @@ into one of your environments:
 ```swift
 DebugPicker.environment(options: AppEnvironment.presets,
                         get: { settings.environment }, set: { settings.environment = $0 },
-                        custom: { .custom($0) })
+                        custom: { AppEnvironment(title: "Custom", url: $0) })
 ```
 
 The custom URL field is off unless you pass `custom:`. It only accepts `http` and `https` URLs with a

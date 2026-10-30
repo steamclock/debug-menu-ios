@@ -56,44 +56,24 @@ struct Foo: Sendable {
     let status: String
 }
 
-/// The servers the app can run against. Add whatever else an environment needs (API keys, feature hosts) here.
-enum AppEnvironment: DebugEnvironment {
-    case production
-    case staging
-    case development
-    /// A server typed into the debug menu's custom URL field.
-    case custom(URL)
+/// A server the app can run against. Add whatever else an environment needs (API keys, feature hosts) here.
+struct AppEnvironment: DebugEnvironment {
+    private static let customTitle = "Custom"
+
+    let title: String
+    let url: URL
+
+    // Force unwraps are fine here: these are fixed literals, so a typo fails on first launch, not in the field.
+    static let production = AppEnvironment(title: "Production", url: URL(string: "https://api.example.com")!)
+    static let staging = AppEnvironment(title: "Staging", url: URL(string: "https://staging.api.example.com")!)
+    static let development = AppEnvironment(title: "Development", url: URL(string: "http://localhost:8080")!)
 
     /// The environments the picker lists. A custom one shows up once it's chosen.
-    static let presets: [AppEnvironment] = [.production, .staging, .development]
+    static let presets = [production, staging, development]
 
-    private static let productionURL = serverURL("https://api.example.com")
-    private static let stagingURL = serverURL("https://staging.api.example.com")
-    private static let developmentURL = serverURL("http://localhost:8080")
-
-    var title: String {
-        switch self {
-        case .production: "Production"
-        case .staging: "Staging"
-        case .development: "Development"
-        case .custom: "Custom"
-        }
-    }
-
-    var url: URL {
-        switch self {
-        case .production: Self.productionURL
-        case .staging: Self.stagingURL
-        case .development: Self.developmentURL
-        case .custom(let url): url
-        }
-    }
-
-    private static func serverURL(_ string: StaticString) -> URL {
-        guard let url = URL(string: "\(string)") else {
-            preconditionFailure("Invalid server URL literal: \(string)")
-        }
-        return url
+    /// An environment for a server typed into the debug menu's custom URL field.
+    static func custom(_ url: URL) -> AppEnvironment {
+        AppEnvironment(title: customTitle, url: url)
     }
 }
 
