@@ -1,0 +1,10 @@
+included:
+  - DebugMenu
+excluded:
+  - DerivedData
+  - .build
+disabled_rules:
+  - todo
+line_length:
+  warning: 140
+  ignores_comments: true
