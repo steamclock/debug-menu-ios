@@ -130,12 +130,12 @@ private func XCTAssertSuccess(_ result: DebugCommandResult, file: StaticString =
 
 private extension DebugMenuSnapshot.Node {
     var pickerOptions: [DebugMenuSnapshot.Option]? {
-        guard case .picker(_, let options) = content else { return nil }
+        guard case .picker(_, let options, _) = content else { return nil }
         return options
     }
 
     var selectedOptionID: String? {
-        guard case .picker(let selectedOptionID, _) = content else { return nil }
+        guard case .picker(let selectedOptionID, _, _) = content else { return nil }
         return selectedOptionID
     }
 }

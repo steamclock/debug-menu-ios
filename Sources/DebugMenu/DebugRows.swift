@@ -123,6 +123,10 @@ public struct DebugPicker: DebugRow {
         set: @escaping @MainActor @Sendable (Value) -> Void
     ) {
         let configuration = DebugPickerConfiguration(options: options, title: optionTitle, get: get, set: set)
+        self.init(title, configuration: configuration)
+    }
+
+    init(_ title: String, configuration: DebugPickerConfiguration) {
         item = DebugItem(id: title, title: title, kind: .picker(configuration))
     }
 }

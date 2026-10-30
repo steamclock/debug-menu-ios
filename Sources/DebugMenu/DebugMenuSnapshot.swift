@@ -38,7 +38,8 @@ public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
         /// A read-only value.
         case info(text: String?)
         /// A single-choice row. `selectedOptionID` is `nil` if the app's value isn't one of the options.
-        case picker(selectedOptionID: String?, options: [Option])
+        /// When `acceptsCustomURL` is true, `DebugCommand.setCustomURL` sets it to a typed-in server.
+        case picker(selectedOptionID: String?, options: [Option], acceptsCustomURL: Bool)
         /// An app-supplied view, which can't be shown outside the app. `text` is the app's optional stand-in.
         case custom(text: String?)
 
@@ -130,7 +131,8 @@ extension DebugItemKind {
         case .picker(let picker):
             .picker(
                 selectedOptionID: picker.selectedOption?.id,
-                options: picker.options.map { DebugMenuSnapshot.Option(id: $0.id, title: $0.title, subtitle: $0.subtitle) }
+                options: picker.options.map { DebugMenuSnapshot.Option(id: $0.id, title: $0.title, subtitle: $0.subtitle) },
+                acceptsCustomURL: picker.setCustomURL != nil
             )
         case .custom(let custom):
             .custom(text: custom.text())

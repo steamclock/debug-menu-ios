@@ -7,8 +7,9 @@ struct ExampleMenu: DebugMenuContent {
 
     var body: DebugMenuGroup {
         DebugInfo.defaults
-        DebugPicker.environment(options: AppEnvironment.allCases, optionTitle: \.title,
-                                get: { settings.environment }, set: { settings.environment = $0 })
+        DebugPicker.environment(options: AppEnvironment.presets,
+                                get: { settings.environment }, set: { settings.environment = $0 },
+                                custom: { .custom($0) })
             .confirmation(.required("Switch environment?", message: "You'll be signed out."))
         DebugToggle.advancedLogging(get: { settings.isAdvancedLoggingEnabled }, set: { settings.isAdvancedLoggingEnabled = $0 })
         DebugButton.sendLogs(logs: { settings.logFiles }, destination: .shareSheet)

@@ -6,16 +6,44 @@ private enum DefaultTitle {
     static let sendLogs = "Send logs"
 }
 
+/// A server the app can run against, for `DebugPicker.environment`. Conform the app's own environment type, and
+/// give it whatever else an environment needs alongside its title and URL.
+public protocol DebugEnvironment: Hashable, Sendable {
+    /// The environment's name, like "Staging".
+    var title: String { get }
+    /// The server the environment points at, shown under the title.
+    var url: URL { get }
+}
+
 public extension DebugPicker {
     /// An "Environment" picker. `set` is where the app switches, e.g. by signing out and pointing at a new server.
-    /// Each option is labelled by `optionTitle`, which defaults to `String(describing:)` of the value.
-    static func environment<Value: Hashable & Sendable>(
+    ///
+    /// The custom URL field is off by default. Pass `custom` to turn it on: it turns a typed-in `http` or `https`
+    /// URL into one of the app's environments, which then goes to `set` like any other choice.
+    static func environment<Value: DebugEnvironment>(
         options: [Value],
-        optionTitle: @escaping @Sendable (Value) -> String = { String(describing: $0) },
         get: @escaping @MainActor @Sendable () -> Value,
-        set: @escaping @MainActor @Sendable (Value) -> Void
+        set: @escaping @MainActor @Sendable (Value) -> Void,
+        custom: (@MainActor @Sendable (URL) -> Value)? = nil
     ) -> DebugPicker {
-        DebugPicker(DefaultTitle.environment, options: options, optionTitle: optionTitle, get: get, set: set)
+        let configuration = DebugPickerConfiguration(
+            options: options,
+            title: \.title,
+            subtitle: \.url.absoluteString,
+            customURL: custom,
+            get: get,
+            set: set
+        )
+        return DebugPicker(DefaultTitle.environment, configuration: configuration)
+    }
+}
+
+extension URL {
+    private static let serverSchemes: Set<String> = ["http", "https"]
+
+    /// Whether this is something a custom environment can point at: an `http` or `https` URL with a host.
+    var isServerURL: Bool {
+        scheme.map { Self.serverSchemes.contains($0.lowercased()) } == true && host() != nil
     }
 }
 

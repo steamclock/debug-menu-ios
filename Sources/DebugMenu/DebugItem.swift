@@ -91,6 +91,8 @@ struct DebugPickerOption: Identifiable, Sendable {
 /// Type-erased picker state. Options are rebuilt on each read so `isSelected` reflects the app's value.
 struct DebugPickerConfiguration: Sendable {
     private let makeOptions: @MainActor @Sendable () -> [DebugPickerOption]
+    /// Sets the app's value from a typed-in server URL. `nil` when the picker doesn't take custom URLs.
+    let setCustomURL: (@MainActor @Sendable (URL) -> Void)?
 
     @MainActor
     var options: [DebugPickerOption] {
@@ -103,15 +105,27 @@ struct DebugPickerConfiguration: Sendable {
     }
 
     /// Option IDs are `String(describing:)` of each value, so an enum case gives its case name.
+    ///
+    /// With `customURL`, the picker also takes a typed-in server URL, and lists the app's current value as an
+    /// option when it isn't one of `values`, so a custom choice still shows as selected.
     init<Value: Hashable & Sendable>(
         options values: [Value],
         title: @escaping @Sendable (Value) -> String,
         subtitle: @escaping @Sendable (Value) -> String? = { _ in nil },
+        customURL: (@MainActor @Sendable (URL) -> Value)? = nil,
         get: @escaping @MainActor @Sendable () -> Value,
         set: @escaping @MainActor @Sendable (Value) -> Void
     ) {
+        if let customURL {
+            self.setCustomURL = { set(customURL($0)) }
+        } else {
+            self.setCustomURL = nil
+        }
+        let includesCurrentValue = customURL != nil
         self.makeOptions = {
-            values.map { value in
+            let current = get()
+            let listedValues = includesCurrentValue && !values.contains(current) ? values + [current] : values
+            return listedValues.map { value in
                 DebugPickerOption(
                     id: String(describing: value),
                     title: title(value),

@@ -111,7 +111,7 @@ DebugButton("Clear cache", role: .destructive, confirmation: .required("Clear th
 Toggles and pickers ask the same way with the `.confirmation(_:)` modifier:
 
 ```swift
-DebugPicker.environment(options: AppEnvironment.allCases, optionTitle: \.title,
+DebugPicker.environment(options: AppEnvironment.presets,
                         get: { settings.environment }, set: { settings.environment = $0 })
     .confirmation(.required("Switch environment?", message: "You'll be signed out."))
 ```
@@ -303,17 +303,50 @@ whatever iOS gives us.
 ### Environment, logging and send logs
 
 ```swift
-DebugPicker.environment(options: AppEnvironment.allCases, optionTitle: \.title,
+DebugPicker.environment(options: AppEnvironment.presets,
                         get: { settings.environment }, set: { settings.environment = $0 })
 DebugToggle.advancedLogging(get: { settings.isAdvancedLoggingEnabled }, set: { settings.isAdvancedLoggingEnabled = $0 })
 DebugButton.sendLogs(logs: { settings.logFiles }, destination: .shareSheet)
 ```
 
 - `DebugPicker.environment` is an "Environment" picker. Do the actual switch (sign out, point at a
-  new server) in `set`. `optionTitle` defaults to `String(describing:)` of each value.
+  new server) in `set`. See [Environments](#environments) below.
 - `DebugToggle.advancedLogging` is an "Advanced logging" toggle over your own setting.
 - `DebugButton.sendLogs` is a "Send logs" button. Your `logs` closure returns `DebugLogFile`s:
   `.file(URL)` for a file on disk, or `.data(Data, fileName:)` for logs in memory.
+
+### Environments
+
+The environment picker takes your own type, as long as it conforms to `DebugEnvironment`, which needs a
+`title` and a `url`. The picker shows each URL under its title. Anything else an environment needs (API
+keys, other hosts) goes on your type too:
+
+```swift
+enum AppEnvironment: DebugEnvironment {
+    case production
+    case staging
+    case custom(URL)
+
+    static let presets: [AppEnvironment] = [.production, .staging]
+
+    var title: String { … }
+    var url: URL { … }
+}
+```
+
+To let people type in any server, like a local machine, pass `custom:`. It turns the URL they type
+into one of your environments:
+
+```swift
+DebugPicker.environment(options: AppEnvironment.presets,
+                        get: { settings.environment }, set: { settings.environment = $0 },
+                        custom: { .custom($0) })
+```
+
+The custom URL field is off unless you pass `custom:`. It only accepts `http` and `https` URLs with a
+host. Once a custom environment is chosen, it's listed with the presets and shows as selected.
+
+### Send logs
 
 `.shareSheet` is the only destination we ship. It shows the system share sheet, so you can mail,
 AirDrop or save the logs. To send them somewhere else, use `.custom`:
@@ -410,8 +443,9 @@ if case .failure(let error) = result {
 }
 ```
 
-The commands are `.setToggle`, `.selectOption` (by option ID), `.runAction` and `.runAsyncAction`.
-An async action's error comes back in the result.
+The commands are `.setToggle`, `.selectOption` (by option ID), `.setCustomURL` (for an environment
+picker with `custom:`), `.runAction` and `.runAsyncAction`. An async action's error comes back in the
+result.
 
 Row IDs are the titles on the row's path, joined with `/`. A "Clear cache" button in a "Cache"
 submenu in a "More" section is `More/Cache/Clear cache`. They're the same on every launch and device.
@@ -454,7 +488,7 @@ along the way. Here's where each 1.x piece went:
 | `DebugNavigationAction` | `DebugCustom` with a `NavigationLink` |
 | `DebugTextFieldAlertAction` | `DebugCustom` with your own text field |
 | `DebugHostControllerAction` | `DebugCustom` with a `NavigationLink` to your screen (wrap a view controller in `UIViewControllerRepresentable`) |
-| Switchcraft endpoint switching | `DebugPicker.environment` |
+| Switchcraft endpoint switching | `DebugPicker.environment` over your own `DebugEnvironment` type, with `custom:` for typed-in URLs |
 | `includeCommonOptions` | `DebugInfo.defaults` |
 | `isLoading` and `debugAlert` | An async `DebugButton`, which shows progress and errors itself |
 | `DebugMenuAccessConfig(passwordSHA256:longPressDuration:)` and `.debugMenuToggle(config:isVisible:)` | `.debugMenuTrigger(longPressDuration:access: .passwordSHA256(…))` |

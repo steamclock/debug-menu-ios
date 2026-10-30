@@ -56,13 +56,44 @@ struct Foo: Sendable {
     let status: String
 }
 
-enum AppEnvironment: String, CaseIterable, Sendable {
+/// The servers the app can run against. Add whatever else an environment needs (API keys, feature hosts) here.
+enum AppEnvironment: DebugEnvironment {
     case production
     case staging
     case development
+    /// A server typed into the debug menu's custom URL field.
+    case custom(URL)
+
+    /// The environments the picker lists. A custom one shows up once it's chosen.
+    static let presets: [AppEnvironment] = [.production, .staging, .development]
+
+    private static let productionURL = serverURL("https://api.example.com")
+    private static let stagingURL = serverURL("https://staging.api.example.com")
+    private static let developmentURL = serverURL("http://localhost:8080")
 
     var title: String {
-        rawValue.capitalized
+        switch self {
+        case .production: "Production"
+        case .staging: "Staging"
+        case .development: "Development"
+        case .custom: "Custom"
+        }
+    }
+
+    var url: URL {
+        switch self {
+        case .production: Self.productionURL
+        case .staging: Self.stagingURL
+        case .development: Self.developmentURL
+        case .custom(let url): url
+        }
+    }
+
+    private static func serverURL(_ string: StaticString) -> URL {
+        guard let url = URL(string: "\(string)") else {
+            preconditionFailure("Invalid server URL literal: \(string)")
+        }
+        return url
     }
 }
 

@@ -1,3 +1,5 @@
+import Foundation
+
 /// Something to do to a row, addressed by its ID from `DebugMenuSnapshot`. The menu UI and a remote both use these.
 public enum DebugCommand: Codable, Sendable, Equatable {
     /// Sets a toggle row's value.
@@ -8,11 +10,14 @@ public enum DebugCommand: Codable, Sendable, Equatable {
     case runAction(rowID: String)
     /// Runs a button's async action and waits for it to finish.
     case runAsyncAction(rowID: String)
+    /// Points an environment picker at a typed-in server. The picker must accept custom URLs.
+    case setCustomURL(rowID: String, url: URL)
 
     /// The row the command addresses.
     public var rowID: String {
         switch self {
-        case .setToggle(let rowID, _), .selectOption(let rowID, _), .runAction(let rowID), .runAsyncAction(let rowID):
+        case .setToggle(let rowID, _), .selectOption(let rowID, _), .runAction(let rowID), .runAsyncAction(let rowID),
+             .setCustomURL(let rowID, _):
             rowID
         }
     }
@@ -28,6 +33,10 @@ public enum DebugCommandError: Error, Codable, Sendable, Equatable {
     case unknownOption(rowID: String, optionID: String)
     /// The row is hidden or disabled.
     case unavailable(rowID: String)
+    /// The picker doesn't accept custom URLs.
+    case customURLUnsupported(rowID: String)
+    /// The URL isn't an `http` or `https` URL with a host.
+    case invalidURL(rowID: String, url: URL)
     /// The async action threw. `message` describes the error.
     case actionFailed(rowID: String, message: String)
 }
@@ -75,6 +84,8 @@ private extension DebugMenu {
                 throw .unknownOption(rowID: rowID, optionID: optionID)
             }
             option.select()
+        case (.setCustomURL(_, let url), .picker(let picker)):
+            try picker.applyCustomURL(url, rowID: rowID)
         case (.runAction, .action(let action)):
             action()
         case (.runAsyncAction, .asyncAction(let action)):
@@ -86,5 +97,18 @@ private extension DebugMenu {
         default:
             throw .wrongKind(rowID: rowID, kind: item.kind.snapshotContent.kind)
         }
+    }
+}
+
+private extension DebugPickerConfiguration {
+    @MainActor
+    func applyCustomURL(_ url: URL, rowID: String) throws(DebugCommandError) {
+        guard let setCustomURL else {
+            throw .customURLUnsupported(rowID: rowID)
+        }
+        guard url.isServerURL else {
+            throw .invalidURL(rowID: rowID, url: url)
+        }
+        setCustomURL(url)
     }
 }

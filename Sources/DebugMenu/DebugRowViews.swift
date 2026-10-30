@@ -205,6 +205,11 @@ private struct DebugPickerScreen: View {
             ForEach(picker.options) { option in
                 DebugPickerOptionRow(option: option) { choose(option) }
             }
+            if picker.setCustomURL != nil {
+                DebugCustomURLSection { url in
+                    item.request(.setCustomURL(rowID: item.id, url: url), pendingCommand: $pendingCommand, run: select)
+                }
+            }
         }
         .navigationTitle(item.title)
         .debugConfirmation(for: item, pendingCommand: $pendingCommand, menu: menu, perform: select)
@@ -218,6 +223,34 @@ private struct DebugPickerScreen: View {
         Task {
             await menu.perform(command)
             dismiss()
+        }
+    }
+}
+
+/// A field for pointing an environment picker at any server. "Use" stays disabled until the text is a server URL.
+private struct DebugCustomURLSection: View {
+    private static let header = "Custom URL"
+    private static let placeholder = "https://"
+    private static let useTitle = "Use"
+
+    let use: @MainActor (URL) -> Void
+
+    @State private var text = ""
+
+    var body: some View {
+        let url = URL(string: text.trimmingCharacters(in: .whitespaces)).flatMap { $0.isServerURL ? $0 : nil }
+        Section(Self.header) {
+            HStack {
+                TextField(Self.placeholder, text: $text)
+                    .keyboardType(.URL)
+                    .textContentType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .submitLabel(.go)
+                    .onSubmit { if let url { use(url) } }
+                Button(Self.useTitle) { if let url { use(url) } }
+                    .disabled(url == nil)
+            }
         }
     }
 }
