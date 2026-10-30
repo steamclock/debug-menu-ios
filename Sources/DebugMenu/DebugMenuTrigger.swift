@@ -12,31 +12,35 @@ public extension View {
     /// ```
     ///
     /// With a password in `access`, the menu asks for it after the gesture. Once it's entered correctly the menu
-    /// stops asking, including after a relaunch.
+    /// stops asking, including after a relaunch. The open menu refreshes when `changes` is sent.
     func debugMenuTrigger(
         taps: Int = 7,
         access: DebugMenuAccessPolicy = .none,
+        changes: DebugMenuChanges = .shared,
         @DebugMenuBuilder content: @escaping @MainActor () -> DebugMenuGroup
     ) -> some View {
-        modifier(DebugMenuTrigger(gesture: AnyGesture(TapGesture(count: taps)), lock: DebugMenuLock(policy: access), menu: content))
+        let gesture = AnyGesture(TapGesture(count: taps))
+        return modifier(DebugMenuTrigger(gesture: gesture, lock: DebugMenuLock(policy: access), changes: changes, menu: content))
     }
 
     /// Opens the debug menu in a sheet when this view is long pressed for `longPressDuration` seconds.
     ///
-    /// Passwords work as they do for `debugMenuTrigger(taps:access:content:)`.
+    /// Passwords and `changes` work as they do for `debugMenuTrigger(taps:access:changes:content:)`.
     func debugMenuTrigger(
         longPressDuration: TimeInterval,
         access: DebugMenuAccessPolicy = .none,
+        changes: DebugMenuChanges = .shared,
         @DebugMenuBuilder content: @escaping @MainActor () -> DebugMenuGroup
     ) -> some View {
         let gesture = AnyGesture(LongPressGesture(minimumDuration: longPressDuration).map { _ in })
-        return modifier(DebugMenuTrigger(gesture: gesture, lock: DebugMenuLock(policy: access), menu: content))
+        return modifier(DebugMenuTrigger(gesture: gesture, lock: DebugMenuLock(policy: access), changes: changes, menu: content))
     }
 }
 
 private struct DebugMenuTrigger: ViewModifier {
     let gesture: AnyGesture<Void>
     let lock: DebugMenuLock
+    let changes: DebugMenuChanges
     let menu: @MainActor () -> DebugMenuGroup
 
     @State private var isPresented = false
@@ -45,20 +49,21 @@ private struct DebugMenuTrigger: ViewModifier {
         content
             .gesture(gesture.onEnded { isPresented = true })
             .sheet(isPresented: $isPresented) {
-                DebugMenuSheet(lock: lock, menu: menu)
+                DebugMenuSheet(lock: lock, changes: changes, menu: menu)
             }
     }
 }
 
 private struct DebugMenuSheet: View {
     let lock: DebugMenuLock
+    let changes: DebugMenuChanges
     let menu: @MainActor () -> DebugMenuGroup
 
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
-            DebugMenuGate(lock: lock, menu: menu)
+            DebugMenuGate(lock: lock, changes: changes, menu: menu)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Done") { dismiss() }
@@ -71,6 +76,7 @@ private struct DebugMenuSheet: View {
 /// Shows a password form until the lock is open, then the menu.
 private struct DebugMenuGate: View {
     let lock: DebugMenuLock
+    let changes: DebugMenuChanges
     let menu: @MainActor () -> DebugMenuGroup
 
     @State private var password = ""
@@ -79,7 +85,7 @@ private struct DebugMenuGate: View {
 
     var body: some View {
         if hasUnlocked || lock.isUnlocked {
-            DebugMenuView(content: menu)
+            DebugMenuView(changes: changes, content: menu)
         } else {
             passwordForm
         }

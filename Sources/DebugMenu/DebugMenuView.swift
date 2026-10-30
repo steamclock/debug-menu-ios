@@ -12,17 +12,22 @@ private let logger = Logger(subsystem: "DebugMenu", category: "DebugMenuView")
 public struct DebugMenuView: View {
     static let title = "Debug Menu"
 
+    private let changes: DebugMenuChanges
     private let content: @MainActor () -> DebugMenuGroup
 
-    /// Creates a menu view from the same content `DebugMenu { }` takes.
-    public init(@DebugMenuBuilder content: @escaping @MainActor () -> DebugMenuGroup) {
+    /// Creates a menu view from the same content `DebugMenu { }` takes. The menu refreshes when `changes` is sent,
+    /// and sends it after every command.
+    public init(
+        changes: DebugMenuChanges = .shared,
+        @DebugMenuBuilder content: @escaping @MainActor () -> DebugMenuGroup
+    ) {
+        self.changes = changes
         self.content = content
     }
 
-    /// The menu's top-level screen, with `DebugMenuChanges.shared` in the environment for its rows.
     public var body: some View {
         DebugMenuRoot(content: content)
-            .environment(DebugMenuChanges.shared)
+            .environment(changes)
     }
 }
 
@@ -35,7 +40,7 @@ private struct DebugMenuRoot: View {
     var body: some View {
         // Rebuild on every change, so `if` and `for` over storage SwiftUI can't observe follow it too.
         let _ = changes.generation
-        let menu = DebugMenu(content)
+        let menu = DebugMenu(changes: changes, content)
         DebugMenuScreen(title: DebugMenuView.title, nodes: menu.children, menu: menu)
     }
 }

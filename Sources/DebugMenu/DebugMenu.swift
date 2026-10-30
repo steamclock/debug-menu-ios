@@ -13,10 +13,13 @@ private let logger = Logger(subsystem: "DebugMenu", category: "DebugMenu")
 public struct DebugMenu: Sendable {
     let children: [DebugMenuNode]
     let itemsByID: [String: DebugItem]
+    /// The signal `dispatch(_:)` sends after every command.
+    let changes: DebugMenuChanges
 
-    /// Builds a menu from its content.
+    /// Builds a menu from its content. `dispatch(_:)` sends `changes` after every command.
     @MainActor
-    public init(@DebugMenuBuilder _ content: () -> DebugMenuGroup) {
+    public init(changes: DebugMenuChanges = .shared, @DebugMenuBuilder _ content: () -> DebugMenuGroup) {
+        self.changes = changes
         var resolver = DebugMenuIDResolver()
         children = resolver.resolve(content().nodes, path: nil)
         itemsByID = resolver.itemsByID

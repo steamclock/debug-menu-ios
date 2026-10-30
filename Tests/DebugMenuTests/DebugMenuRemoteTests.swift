@@ -88,6 +88,19 @@ final class DebugMenuRemoteTests: XCTestCase {
 
         XCTAssertEqual(DebugMenuChanges.shared.generation, before + 1)
     }
+
+    func testDispatchSignalsInjectedChanges() async {
+        let changes = DebugMenuChanges()
+        let menu = DebugMenu(changes: changes) {
+            DebugButton("Reset") {}
+        }
+        let sharedBefore = DebugMenuChanges.shared.generation
+
+        _ = await menu.dispatch(.runAction(rowID: "Reset"))
+
+        XCTAssertEqual(changes.generation, 1)
+        XCTAssertEqual(DebugMenuChanges.shared.generation, sharedBefore)
+    }
 }
 
 /// Talks to the menu only through encoded snapshots, commands and results, as a remote would.
