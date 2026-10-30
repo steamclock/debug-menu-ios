@@ -1,22 +1,19 @@
-// swift-tools-version:5.5
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// swift-tools-version: 6.0
 import PackageDescription
 
 let package = Package(
     name: "DebugMenu",
     platforms: [
-        .iOS(.v15), .macOS(.v10_14)
+        .iOS(.v15),
+        // Declared only so `swift test` runs the model tests on a Mac. The SwiftUI layer is iOS only.
+        .macOS(.v12)
     ],
     products: [
-        .library(
-            name: "DebugMenu",
-            targets: ["DebugMenu"]),
+        .library(name: "DebugMenu", targets: ["DebugMenu"])
     ],
-    dependencies: [],
     targets: [
-        .target(
-            name: "DebugMenu",
-            path: "DebugMenu/DebugMenu")
-    ]
+        .target(name: "DebugMenu"),
+        .testTarget(name: "DebugMenuTests", dependencies: ["DebugMenu"])
+    ],
+    swiftLanguageModes: [.v6]
 )

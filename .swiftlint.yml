@@ -1,5 +1,6 @@
 included:
-  - DebugMenu
+  - Sources
+  - Tests
 excluded:
   - DerivedData
   - .build
