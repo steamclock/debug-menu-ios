@@ -61,10 +61,9 @@ public API, so keep it simple.
 
 ### Platform and Language
 
-- The package targets **iOS 15+** and builds in **Swift 6 language mode** with strict concurrency.
-- There is one version of the package. Use `if #available` only where a newer API is a contained
-  win in one place (e.g. `NavigationStack` for submenus). Never fork a whole type or feature by OS
-  version.
+- The package targets **iOS 17+** and builds in **Swift 6 language mode** with strict concurrency.
+- There is one version of the package. Use iOS 17 APIs directly. Use `if #available` only where a
+  newer API is a contained win in one place. Never fork a whole type or feature by OS version.
 - Never use `@unchecked Sendable` or `nonisolated(unsafe)` without a comment that cites the ticket
   and explains why the compiler can't prove safety.
 
@@ -80,8 +79,8 @@ public API, so keep it simple.
 - The menu never owns app values. Rows read and write through `get`/`set` closures into the app's
   own state.
 - Keep the library's own observable state minimal (e.g. a refresh signal, the unlock flag). Use
-  `ObservableObject` for it, since `@Observable` needs iOS 17.
-- Never give a row its own Combine publisher.
+  `@Observable` for it, never `ObservableObject`.
+- Never give a row its own Combine publisher. The library doesn't import Combine.
 - Observable state types that drive UI are `@MainActor`.
 
 ### Swift Code Quality
@@ -103,12 +102,10 @@ public API, so keep it simple.
 - Inject dependencies into views via the initializer or environment. No singletons accessed
   directly from view bodies.
 - Use `.task {}` for async work tied to a view's lifetime.
-- Use `NavigationView` for navigation, with `NavigationStack` behind `if #available(iOS 16, *)`
-  where it's a contained swap.
+- Use `NavigationStack` for navigation. Never `NavigationView`.
 
 **Async / Concurrency**
-- Use Swift Concurrency (`async/await`, `Task`, actors). No Combine beyond what `ObservableObject`
-  needs.
+- Use Swift Concurrency (`async/await`, `Task`, actors). No Combine.
 
 **Error Handling**
 - Do not swallow errors silently. At minimum log them; prefer surfacing them to the caller.

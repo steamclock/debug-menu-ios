@@ -83,7 +83,7 @@ final class DebugMenuBuilderTests: XCTestCase {
                 for server in ["prod", "staging"] {
                     DebugButton("Ping \(server)") {}
                 }
-                if #available(iOS 15, macOS 12, *) {
+                if #available(iOS 17, macOS 14, *) {
                     DebugToggle("Available", get: { app.showAllFoos }, set: { app.showAllFoos = $0 })
                 }
             }.children)
