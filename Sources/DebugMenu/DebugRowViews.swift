@@ -47,12 +47,7 @@ private struct DebugToggleRow: View {
     }
 
     private func request(_ isOn: Bool) {
-        let command = DebugCommand.setToggle(rowID: item.id, isOn: isOn)
-        if item.confirmation == nil {
-            Task { await menu.perform(command) }
-        } else {
-            pendingCommand = command
-        }
+        item.request(.setToggle(rowID: item.id, isOn: isOn), pendingCommand: $pendingCommand, run: menu.start)
     }
 }
 
@@ -67,11 +62,7 @@ private struct DebugActionRow: View {
 
     var body: some View {
         Button(role: item.buttonRole) {
-            if item.confirmation == nil {
-                Task { await menu.perform(command) }
-            } else {
-                pendingCommand = command
-            }
+            item.request(command, pendingCommand: $pendingCommand, run: menu.start)
         } label: {
             DebugRowTitle(item: item)
         }
@@ -92,11 +83,7 @@ private struct DebugAsyncActionRow: View {
 
     var body: some View {
         Button(role: item.buttonRole) {
-            if item.confirmation == nil {
-                run(.runAsyncAction(rowID: item.id))
-            } else {
-                pendingCommand = .runAsyncAction(rowID: item.id)
-            }
+            item.request(.runAsyncAction(rowID: item.id), pendingCommand: $pendingCommand, run: run)
         } label: {
             label
         }
@@ -137,6 +124,8 @@ private struct DebugAsyncActionRow: View {
 private struct DebugInfoRow: View {
     private static let copiedDuration: UInt64 = 1_500_000_000
     private static let emptyValue = "None"
+    private static let copiedText = "Copied"
+    private static let copyHint = "Copies the value"
 
     let item: DebugItem
     let value: @MainActor @Sendable () -> String?
@@ -154,14 +143,14 @@ private struct DebugInfoRow: View {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 DebugRowTitle(item: item)
                 Spacer(minLength: 16)
-                Text(isCopied ? "Copied" : currentValue ?? Self.emptyValue)
+                Text(isCopied ? Self.copiedText : currentValue ?? Self.emptyValue)
                     .foregroundColor(.secondary)
                     .font(.caption)
                     .multilineTextAlignment(.trailing)
             }
         }
         .disabled(item.availability.isDisabled() || currentValue == nil)
-        .accessibilityHint("Copies the value")
+        .accessibilityHint(Self.copyHint)
         .task(id: isCopied) {
             guard isCopied else { return }
             // Sleep only throws on cancellation, when the row is gone and there's nothing to reset.
@@ -214,12 +203,7 @@ private struct DebugPickerScreen: View {
     }
 
     private func choose(_ option: DebugPickerOption) {
-        let command = DebugCommand.selectOption(rowID: item.id, optionID: option.id)
-        if item.confirmation == nil {
-            select(command)
-        } else {
-            pendingCommand = command
-        }
+        item.request(.selectOption(rowID: item.id, optionID: option.id), pendingCommand: $pendingCommand, run: select)
     }
 
     private func select(_ command: DebugCommand) {
@@ -307,11 +291,7 @@ private extension View {
             presenting: pendingCommand.wrappedValue
         ) { command in
             Button(item.confirmation?.confirmTitle ?? "", role: item.buttonRole) {
-                if let perform {
-                    perform(command)
-                } else {
-                    Task { await menu.perform(command) }
-                }
+                (perform ?? menu.start)(command)
             }
             Button(item.confirmation?.cancelTitle ?? "", role: .cancel) {}
         } message: { _ in
@@ -326,14 +306,31 @@ private extension DebugItem {
     var buttonRole: ButtonRole? {
         role == .destructive ? .destructive : nil
     }
+
+    /// Runs `command` now, or holds it in `pendingCommand` for the confirmation dialog when the row has one.
+    @MainActor
+    func request(
+        _ command: DebugCommand,
+        pendingCommand: Binding<DebugCommand?>,
+        run: @MainActor (DebugCommand) -> Void
+    ) {
+        if confirmation == nil {
+            run(command)
+        } else {
+            pendingCommand.wrappedValue = command
+        }
+    }
 }
 
 private extension DebugCommandResult {
+    private static let successMessage = "Succeeded"
+    private static let failurePrefix = "Failed: "
+
     var message: String {
         switch self {
-        case .success: "Succeeded"
-        case .failure(.actionFailed(_, let message)): "Failed: \(message)"
-        case .failure(let error): "Failed: \(error)"
+        case .success: Self.successMessage
+        case .failure(.actionFailed(_, let message)): Self.failurePrefix + message
+        case .failure(let error): Self.failurePrefix + String(describing: error)
         }
     }
 

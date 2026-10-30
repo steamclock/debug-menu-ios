@@ -72,7 +72,8 @@ public API, so keep it simple.
 
 - **Minimize visibility.** Types and members are `internal` by default; mark `public` only what a
   consuming app needs. Every `public` declaration is API surface we have to keep stable.
-- Every `public` declaration has a `///` doc comment.
+- Every `public` declaration has a `///` doc comment, except members that only satisfy a protocol requirement (e.g.
+  `View.body`).
 
 ### Observation and State
 

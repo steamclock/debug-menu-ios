@@ -70,8 +70,6 @@ private struct DebugMenuSheet: View {
 
 /// Shows a password form until the lock is open, then the menu.
 private struct DebugMenuGate: View {
-    private static let title = "Debug Menu"
-
     let lock: DebugMenuLock
     let menu: @MainActor () -> DebugMenuGroup
 
@@ -103,7 +101,7 @@ private struct DebugMenuGate: View {
                 }
             }
         }
-        .navigationTitle(Self.title)
+        .navigationTitle(DebugMenuView.title)
     }
 
     private func submit() {

@@ -129,9 +129,8 @@ private extension DebugMenuSnapshot.Node {
         case .toggle(let get, _):
             isOn = get()
         case .picker(let picker):
-            let pickerOptions = picker.options
-            selectedOptionID = pickerOptions.first { $0.isSelected() }?.id
-            options = pickerOptions.map { DebugMenuSnapshot.Option(id: $0.id, title: $0.title, subtitle: $0.subtitle) }
+            selectedOptionID = picker.selectedOption?.id
+            options = picker.options.map { DebugMenuSnapshot.Option(id: $0.id, title: $0.title, subtitle: $0.subtitle) }
         case .info(let value):
             text = value()
         case .custom(let custom):
