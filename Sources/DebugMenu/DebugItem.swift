@@ -143,8 +143,8 @@ enum DebugItemKind: Sendable {
     case custom(DebugCustomConfiguration)
 }
 
-/// A single row in the menu.
-struct DebugItem: Identifiable, Sendable {
+/// A built row. Its contents are internal; read rows through `DebugMenuSnapshot`.
+public struct DebugItem: Sendable {
     /// Starts as the row's local key (its explicit ID or title). Building the menu prefixes it with the tree path.
     var id: String
     let title: String

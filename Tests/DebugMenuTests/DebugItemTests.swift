@@ -149,6 +149,17 @@ enum EnvironmentState: DebugPickerValue {
 @MainActor
 final class TestAppState {
     var isLoggedIn = false
+    var showAllFoos = false
+    var environment = EnvironmentState.production
+    var server = "https://prod.example.com"
+    var cacheSize = "12 KB"
+    var resetCount = 0
+    var syncCount = 0
+
+    func sync() async throws {
+        await Task.yield()
+        syncCount += 1
+    }
 }
 
 enum TestDebugError: Error {
