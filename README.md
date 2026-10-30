@@ -22,7 +22,7 @@ The menu never stores your values. Rows read and write through `get`/`set` closu
 
 ## Requirements
 
-- iOS 15 or later.
+- iOS 17 or later.
 - Xcode 16 or later (swift-tools 6.0). The package builds in Swift 6 language mode.
 - No other dependencies.
 
@@ -71,7 +71,7 @@ shows or changes, so `if` and `for` follow your app's current state.
 ## Rows
 
 Every row takes a title first, then whatever it needs. The examples below come from the example app,
-where `settings` is an `ObservableObject` the app owns.
+where `settings` is an `@Observable` model the app owns.
 
 ### Toggle
 
@@ -178,7 +178,7 @@ DebugCustom("Cart items", value: "\(settings.cartItemCount)") { CartStepper(sett
 private struct CartStepper: View {
     private static let range = 0...20
 
-    @ObservedObject var settings: AppSettings
+    @Bindable var settings: AppSettings
 
     var body: some View {
         Stepper("Cart items: \(settings.cartItemCount)", value: $settings.cartItemCount, in: Self.range)
@@ -254,19 +254,31 @@ if settings.showAllFoos {
 
 ## Keeping the menu up to date
 
-Changes made through the menu's own rows show up right away. When something outside the menu
-changes a value while it's open, call `DebugMenuChanges.shared.send()` so the menu reads its values
-again. In the example app the cart stepper is a custom row, so its changes don't go through the
-menu, and the model tells the menu itself:
+Rows read your values while they render, so SwiftUI keeps them current the same way it keeps your
+own views current. Changes made through the menu's own rows show up right away. So do changes from
+anywhere else to an `@Observable` model, like the cart stepper in the example app, which is a custom
+row that changes `settings.cartItemCount` directly.
+
+SwiftUI can't see every kind of storage, though. When a value lives somewhere it can't observe, like
+`UserDefaults` read through a computed property, and something outside the menu changes it while the
+menu is open, call `DebugMenuChanges.shared.send()` so the menu reads its values again:
 
 ```swift
-@Published var cartItemCount = 2 {
-    didSet { DebugMenuChanges.shared.send() }
+var isDarkLaunchEnabled: Bool {
+    get { UserDefaults.standard.bool(forKey: Self.darkLaunchKey) }
+    set { UserDefaults.standard.set(newValue, forKey: Self.darkLaunchKey) }
 }
 ```
 
-Rows read their values while they render, so on iOS 17 changes to an `@Observable` model should
-show up without `send()`. If a row looks stale, `send()` is the fix.
+```swift
+Button("Flip dark launch, then send()") {
+    settings.isDarkLaunchEnabled.toggle()
+    DebugMenuChanges.shared.send()
+}
+```
+
+You don't need `send()` after a change made through a menu row. The menu sends it after every
+command.
 
 ## Built-in rows
 
@@ -284,9 +296,9 @@ DebugInfo.systemVersion
 
 The others are `DebugInfo.buildName` and `DebugInfo.deviceName`.
 
-The device name comes from `UIDevice.name`. Since iOS 16 that's only the model, like "iPhone",
-unless your app has the `com.apple.developer.device-information.user-assigned-device-name`
-entitlement. We show whatever iOS gives us.
+The device name comes from `UIDevice.name`. That's only the model, like "iPhone", unless your app
+has the `com.apple.developer.device-information.user-assigned-device-name` entitlement. We show
+whatever iOS gives us.
 
 ### Environment, logging and send logs
 
@@ -308,7 +320,7 @@ AirDrop or save the logs. To send them somewhere else, use `.custom`:
 
 ```swift
 DebugButton.sendLogs(
-    logs: { [.file(FileManager.default.temporaryDirectory.appendingPathComponent("app.log"))] },
+    logs: { [.file(URL.temporaryDirectory.appending(path: "app.log"))] },
     destination: .custom { logs in try await Telemetry.upload(logs) }
 )
 ```
@@ -336,7 +348,7 @@ Text("Long press to open it with a password (\"debug\")")
 The gesture is on the view you attach it to, so give that view a hit area big enough to find.
 
 If you'd rather show the menu yourself, `DebugMenuView` takes the same content. Put it in a
-`NavigationView` or `NavigationStack`, since submenus and pickers push screens. It doesn't ask for a
+`NavigationStack`, since submenus and pickers push screens. It doesn't ask for a
 password; that's part of the trigger.
 
 ```swift
@@ -346,7 +358,7 @@ struct SettingsScreen: View {
     var body: some View {
         Button("Debug menu") { isShowingDebugMenu = true }
             .sheet(isPresented: $isShowingDebugMenu) {
-                NavigationView {
+                NavigationStack {
                     DebugMenuView {
                         DebugInfo.defaults
                     }
@@ -429,7 +441,7 @@ The menu is in `Example/DebugMenuExample/ExampleMenu.swift`.
 
 ## Upgrading from 1.x
 
-2.0 is a rewrite with a new API, and there's no compatibility layer. Most 1.x menus should get shorter
+2.0 is a rewrite with a new API, and there's no compatibility layer. It needs iOS 17. Most 1.x menus should get shorter
 along the way. Here's where each 1.x piece went:
 
 | 1.x | 2.0 |
