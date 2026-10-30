@@ -46,9 +46,7 @@ struct ExampleMenu: DebugMenuContent {
                 }
             }
             NetworkMenu(settings: settings)
-            if #available(iOS 17, *) {
-                ExperimentsMenu(flags: .shared)
-            }
+            ExperimentsMenu(settings: settings)
         }
     }
 }
@@ -68,16 +66,23 @@ private struct NetworkMenu: DebugMenuContent {
     }
 }
 
-/// Rows over an `@Observable` model. On iOS 17 they should update when the model changes, without `send()`.
-@available(iOS 17, *)
+/// Values changed from outside the menu's own rows. The `@Observable` one updates by itself; the `UserDefaults`
+/// one needs `send()`.
 private struct ExperimentsMenu: DebugMenuContent {
-    let flags: ExperimentFlags
+    let settings: AppSettings
 
     var body: DebugMenuGroup {
         DebugSubmenu("Experiments") {
-            DebugToggle("New checkout", isOn: Bindable(flags).isNewCheckoutEnabled)
-            DebugCustom("Flip from outside the menu") {
-                Button("Flip new checkout without send()") { flags.isNewCheckoutEnabled.toggle() }
+            DebugToggle("New checkout", isOn: Bindable(settings).isNewCheckoutEnabled)
+            DebugToggle("Dark launch", get: { settings.isDarkLaunchEnabled }, set: { settings.isDarkLaunchEnabled = $0 })
+            DebugCustom("Flip new checkout") {
+                Button("Flip new checkout without send()") { settings.isNewCheckoutEnabled.toggle() }
+            }
+            DebugCustom("Flip dark launch") {
+                Button("Flip dark launch, then send()") {
+                    settings.isDarkLaunchEnabled.toggle()
+                    DebugMenuChanges.shared.send()
+                }
             }
         }
     }
@@ -87,7 +92,7 @@ private struct ExperimentsMenu: DebugMenuContent {
 private struct CartStepper: View {
     private static let range = 0...20
 
-    @ObservedObject var settings: AppSettings
+    @Bindable var settings: AppSettings
 
     var body: some View {
         Stepper("Cart items: \(settings.cartItemCount)", value: $settings.cartItemCount, in: Self.range)

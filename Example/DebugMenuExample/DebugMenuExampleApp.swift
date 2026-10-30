@@ -3,7 +3,7 @@ import SwiftUI
 
 @main
 struct DebugMenuExampleApp: App {
-    @StateObject private var settings = AppSettings()
+    @State private var settings = AppSettings()
 
     var body: some Scene {
         WindowGroup {
@@ -17,7 +17,7 @@ struct ContentView: View {
     private static let passwordHash = "0b8e9e995d8d77f1e4770f0f79665aee6f3f70247b3735422daba73df4c3096f"
     private static let longPressDuration: TimeInterval = 1
 
-    @ObservedObject var settings: AppSettings
+    let settings: AppSettings
 
     var body: some View {
         VStack(spacing: 32) {

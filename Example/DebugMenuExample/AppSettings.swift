@@ -2,22 +2,28 @@ import DebugMenu
 import Foundation
 
 /// The app's own state. The debug menu reads and writes it, but never stores a copy.
+@Observable
 @MainActor
-final class AppSettings: ObservableObject {
-    private static let fakeNetworkDelay: UInt64 = 1_000_000_000
+final class AppSettings {
+    private static let fakeNetworkDelay = Duration.seconds(1)
+    private static let darkLaunchKey = "isDarkLaunchEnabled"
 
-    @Published var environment = AppEnvironment.production
-    @Published var isAdvancedLoggingEnabled = false
-    @Published var showAllFoos = false
-    @Published var logLevel = LogLevel.info
-    @Published var pageSize = 25
-    @Published var isSlowNetworkEnabled = false
-    @Published var userID: String? = "user-1234"
-    @Published var cachedImageCount = 42
-    /// The cart stepper is a custom row, so its changes don't go through the menu's commands.
-    /// Tell an open menu about them, so rows that read the cart (like "Clear cart") update too.
-    @Published var cartItemCount = 2 {
-        didSet { DebugMenuChanges.shared.send() }
+    var environment = AppEnvironment.production
+    var isAdvancedLoggingEnabled = false
+    var showAllFoos = false
+    var logLevel = LogLevel.info
+    var pageSize = 25
+    var isSlowNetworkEnabled = false
+    var userID: String? = "user-1234"
+    var cachedImageCount = 42
+    var cartItemCount = 2
+    var isNewCheckoutEnabled = false
+
+    /// Stored in `UserDefaults`, which SwiftUI can't observe. Changing it outside the menu needs
+    /// `DebugMenuChanges.shared.send()` before an open menu shows it.
+    var isDarkLaunchEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: Self.darkLaunchKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.darkLaunchKey) }
     }
 
     let foos = [
@@ -31,11 +37,11 @@ final class AppSettings: ObservableObject {
     }
 
     func refreshToken() async throws {
-        try await Task.sleep(nanoseconds: Self.fakeNetworkDelay)
+        try await Task.sleep(for: Self.fakeNetworkDelay)
     }
 
     func sync() async throws {
-        try await Task.sleep(nanoseconds: Self.fakeNetworkDelay)
+        try await Task.sleep(for: Self.fakeNetworkDelay)
         throw SyncError.serverUnavailable
     }
 }
@@ -72,16 +78,4 @@ enum LogLevel: String, DebugPickerValue {
     var debugSubtitle: String? {
         self == .verbose ? "Logs every request" : nil
     }
-}
-
-/// An iOS 17 `@Observable` model, next to the `ObservableObject` above.
-///
-/// It's a shared instance because an iOS 15 app can't have a stored property of an iOS 17 type.
-@available(iOS 17, *)
-@Observable
-@MainActor
-final class ExperimentFlags {
-    static let shared = ExperimentFlags()
-
-    var isNewCheckoutEnabled = false
 }
