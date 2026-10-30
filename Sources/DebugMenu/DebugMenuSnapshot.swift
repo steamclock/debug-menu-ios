@@ -3,24 +3,58 @@
 /// Everything the menu UI can see is here, keyed by stable node IDs, so a remote can show the menu and drive it
 /// with `DebugCommand`s.
 public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
-    /// The kind of a node.
+    /// The kind of a node, without its state. `DebugCommandError.wrongKind` reports it.
     public enum Kind: String, Codable, Sendable {
         /// A titled group of rows.
         case section
         /// A row that opens a nested menu.
         case submenu
-        /// An on/off row. Its value is in `isOn`.
+        /// An on/off row.
         case toggle
+        /// A button.
+        case action
+        /// A button with an async action.
+        case asyncAction
+        /// A read-only value.
+        case info
+        /// A single-choice row.
+        case picker
+        /// An app-supplied view.
+        case custom
+    }
+
+    /// What a node is, with the state that only its kind has.
+    public enum Content: Codable, Sendable, Equatable {
+        /// A titled group of rows.
+        case section
+        /// A row that opens a nested menu.
+        case submenu
+        /// An on/off row and its current value.
+        case toggle(isOn: Bool)
         /// A button. Run it with `DebugCommand.runAction`.
         case action
         /// A button with an async action. Run it with `DebugCommand.runAsyncAction`.
         case asyncAction
-        /// A read-only value. Its value is in `text`.
-        case info
-        /// A single-choice row. Its value is in `selectedOptionID`, its choices in `options`.
-        case picker
-        /// An app-supplied view, which can't be shown outside the app. `text` holds the app's optional stand-in.
-        case custom
+        /// A read-only value.
+        case info(text: String?)
+        /// A single-choice row. `selectedOptionID` is `nil` if the app's value isn't one of the options.
+        case picker(selectedOptionID: String?, options: [Option])
+        /// An app-supplied view, which can't be shown outside the app. `text` is the app's optional stand-in.
+        case custom(text: String?)
+
+        /// The content's kind, without its state.
+        public var kind: Kind {
+            switch self {
+            case .section: .section
+            case .submenu: .submenu
+            case .toggle: .toggle
+            case .action: .action
+            case .asyncAction: .asyncAction
+            case .info: .info
+            case .picker: .picker
+            case .custom: .custom
+            }
+        }
     }
 
     /// One choice in a picker row.
@@ -37,8 +71,8 @@ public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
     public struct Node: Codable, Sendable, Equatable {
         /// The stable ID commands use to address this node.
         public let id: String
-        /// What kind of node this is.
-        public let kind: Kind
+        /// What kind of node this is, and its kind's state, like a toggle's value.
+        public let content: Content
         /// The node's title.
         public let title: String
         /// Child nodes of a section or submenu, `nil` for rows.
@@ -55,14 +89,11 @@ public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
         public let disabledReason: String?
         /// The confirmation the UI shows before running the row's action.
         public let confirmation: DebugConfirmation?
-        /// A toggle's current value.
-        public let isOn: Bool?
-        /// A picker's currently selected option, or `nil` if the app's value isn't one of the options.
-        public let selectedOptionID: String?
-        /// A picker's options.
-        public let options: [Option]?
-        /// An info row's value, or a custom row's stand-in text.
-        public let text: String?
+
+        /// What kind of node this is. The same as `content.kind`.
+        public var kind: Kind {
+            content.kind
+        }
     }
 
     /// The top-level nodes in declaration order.
@@ -78,14 +109,25 @@ public extension DebugMenu {
 }
 
 extension DebugItemKind {
-    var snapshotKind: DebugMenuSnapshot.Kind {
+    /// The row's kind and current state, read through its closures.
+    @MainActor
+    var snapshotContent: DebugMenuSnapshot.Content {
         switch self {
-        case .toggle: .toggle
-        case .action: .action
-        case .asyncAction: .asyncAction
-        case .info: .info
-        case .picker: .picker
-        case .custom: .custom
+        case .toggle(let get, _):
+            .toggle(isOn: get())
+        case .action:
+            .action
+        case .asyncAction:
+            .asyncAction
+        case .info(let value):
+            .info(text: value())
+        case .picker(let picker):
+            .picker(
+                selectedOptionID: picker.selectedOption?.id,
+                options: picker.options.map { DebugMenuSnapshot.Option(id: $0.id, title: $0.title, subtitle: $0.subtitle) }
+            )
+        case .custom(let custom):
+            .custom(text: custom.text())
         }
     }
 }
@@ -103,7 +145,7 @@ private extension DebugMenuSnapshot.Node {
     init(_ container: DebugContainer) {
         self.init(
             id: container.id,
-            kind: container.style == .section ? .section : .submenu,
+            content: container.style == .section ? .section : .submenu,
             title: container.title,
             children: container.children.map(Self.init),
             role: .normal,
@@ -111,36 +153,15 @@ private extension DebugMenuSnapshot.Node {
             isVisible: true,
             isDisabled: false,
             disabledReason: nil,
-            confirmation: nil,
-            isOn: nil,
-            selectedOptionID: nil,
-            options: nil,
-            text: nil
+            confirmation: nil
         )
     }
 
     @MainActor
     init(_ item: DebugItem) {
-        var isOn: Bool?
-        var selectedOptionID: String?
-        var options: [DebugMenuSnapshot.Option]?
-        var text: String?
-        switch item.kind {
-        case .toggle(let get, _):
-            isOn = get()
-        case .picker(let picker):
-            selectedOptionID = picker.selectedOption?.id
-            options = picker.options.map { DebugMenuSnapshot.Option(id: $0.id, title: $0.title, subtitle: $0.subtitle) }
-        case .info(let value):
-            text = value()
-        case .custom(let custom):
-            text = custom.text()
-        case .action, .asyncAction:
-            break
-        }
         self.init(
             id: item.id,
-            kind: item.kind.snapshotKind,
+            content: item.kind.snapshotContent,
             title: item.title,
             children: nil,
             role: item.role,
@@ -148,11 +169,7 @@ private extension DebugMenuSnapshot.Node {
             isVisible: item.availability.isVisible(),
             isDisabled: item.availability.isDisabled(),
             disabledReason: item.availability.disabledReason(),
-            confirmation: item.confirmation,
-            isOn: isOn,
-            selectedOptionID: selectedOptionID,
-            options: options,
-            text: text
+            confirmation: item.confirmation
         )
     }
 }

@@ -21,7 +21,10 @@ final class DebugDefaultsTests: XCTestCase {
         }
 
         XCTAssertEqual(menu.snapshot().nodes.map(\.id), ["Environment", "Advanced logging", "Send logs"])
-        XCTAssertEqual(menu.snapshot().nodes[0].options?.map(\.title), ["production", "staging"])
+        guard case .picker(_, let options) = menu.snapshot().nodes[0].content else {
+            return XCTFail("Expected a picker")
+        }
+        XCTAssertEqual(options.map(\.title), ["production", "staging"])
         XCTAssertEqual(DebugMenu { DebugToggle("Other", get: { true }, set: { _ in }) }.snapshot().nodes.count, 1)
 
         _ = await menu.dispatch(.selectOption(rowID: "Environment", optionID: "staging"))

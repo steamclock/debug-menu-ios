@@ -84,7 +84,7 @@ private extension DebugMenu {
                 throw .actionFailed(rowID: rowID, message: String(describing: error))
             }
         default:
-            throw .wrongKind(rowID: rowID, kind: item.kind.snapshotKind)
+            throw .wrongKind(rowID: rowID, kind: item.kind.snapshotContent.kind)
         }
     }
 }

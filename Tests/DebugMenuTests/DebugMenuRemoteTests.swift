@@ -14,9 +14,9 @@ final class DebugMenuRemoteTests: XCTestCase {
         let picker = try XCTUnwrap(rows.first { $0.title == "Environment" })
         let reset = try XCTUnwrap(rows.first { $0.title == "Reset" })
         let sync = try XCTUnwrap(rows.first { $0.title == "Sync" })
-        let staging = try XCTUnwrap(picker.options?.first { $0.title == "Staging" })
+        let staging = try XCTUnwrap(picker.pickerOptions?.first { $0.title == "Staging" })
 
-        XCTAssertEqual(toggle.isOn, false)
+        XCTAssertEqual(toggle.content, .toggle(isOn: false))
         XCTAssertEqual(picker.selectedOptionID, "production")
         XCTAssertEqual(toggle.helpText, "Shows every foo")
 
@@ -31,7 +31,7 @@ final class DebugMenuRemoteTests: XCTestCase {
         XCTAssertEqual(app.syncCount, 1)
 
         rows = try remote.fetchRows()
-        XCTAssertEqual(rows.first { $0.id == toggle.id }?.isOn, true)
+        XCTAssertEqual(rows.first { $0.id == toggle.id }?.content, .toggle(isOn: true))
         XCTAssertEqual(rows.first { $0.id == picker.id }?.selectedOptionID, staging.id)
     }
 
@@ -44,10 +44,10 @@ final class DebugMenuRemoteTests: XCTestCase {
         XCTAssertEqual(snapshot.nodes[1].children?.map(\.kind), [.action, .asyncAction, .asyncAction, .action])
 
         let server = try XCTUnwrap(snapshot.nodes[0].children?[2])
-        XCTAssertEqual(server.options?.map(\.id), ["https://prod.example.com", "https://staging.example.com"])
+        XCTAssertEqual(server.pickerOptions?.map(\.id), ["https://prod.example.com", "https://staging.example.com"])
         XCTAssertEqual(server.selectedOptionID, "https://prod.example.com")
-        XCTAssertEqual(snapshot.nodes[0].children?[3].text, "12 KB")
-        XCTAssertEqual(snapshot.nodes[0].children?[4].text, "custom text")
+        XCTAssertEqual(snapshot.nodes[0].children?[3].content, .info(text: "12 KB"))
+        XCTAssertEqual(snapshot.nodes[0].children?[4].content, .custom(text: "custom text"))
         XCTAssertEqual(snapshot.nodes[1].children?[3].isDisabled, true)
     }
 
@@ -113,4 +113,16 @@ private struct RemoteStandIn {
 
 private func XCTAssertSuccess(_ result: DebugCommandResult, file: StaticString = #filePath, line: UInt = #line) {
     XCTAssertEqual(result, .success, file: file, line: line)
+}
+
+private extension DebugMenuSnapshot.Node {
+    var pickerOptions: [DebugMenuSnapshot.Option]? {
+        guard case .picker(_, let options) = content else { return nil }
+        return options
+    }
+
+    var selectedOptionID: String? {
+        guard case .picker(let selectedOptionID, _) = content else { return nil }
+        return selectedOptionID
+    }
 }
