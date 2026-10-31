@@ -35,8 +35,6 @@ private struct DebugToggleRow: View {
     let get: @MainActor @Sendable () -> Bool
     let menu: DebugMenu
 
-    @State private var pendingCommand: DebugCommand?
-
     @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
@@ -45,11 +43,10 @@ private struct DebugToggleRow: View {
             DebugRowTitle(item: item)
         }
         .disabled(item.availability.isDisabled())
-        .debugConfirmation(for: item, pendingCommand: $pendingCommand, menu: menu)
     }
 
     private func request(_ isOn: Bool) {
-        item.request(.setToggle(rowID: item.id, isOn: isOn), pendingCommand: $pendingCommand, run: menu.start)
+        item.request(.setToggle(rowID: item.id, isOn: isOn), run: menu.start)
     }
 }
 
@@ -58,19 +55,16 @@ private struct DebugActionRow: View {
     let command: DebugCommand
     let menu: DebugMenu
 
-    @State private var pendingCommand: DebugCommand?
-
     @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
         let _ = changes.generation
         Button(role: item.buttonRole) {
-            item.request(command, pendingCommand: $pendingCommand, run: menu.start)
+            item.request(command, run: menu.start)
         } label: {
             DebugRowTitle(item: item)
         }
         .disabled(item.availability.isDisabled())
-        .debugConfirmation(for: item, pendingCommand: $pendingCommand, menu: menu)
     }
 }
 
@@ -78,7 +72,6 @@ private struct DebugAsyncActionRow: View {
     let item: DebugItem
     let menu: DebugMenu
 
-    @State private var pendingCommand: DebugCommand?
     @State private var isRunning = false
     @State private var result: DebugCommandResult?
 
@@ -87,12 +80,11 @@ private struct DebugAsyncActionRow: View {
     var body: some View {
         let _ = changes.generation
         Button(role: item.buttonRole) {
-            item.request(.runAsyncAction(rowID: item.id), pendingCommand: $pendingCommand, run: run)
+            item.request(.runAsyncAction(rowID: item.id), run: run)
         } label: {
             label
         }
         .disabled(item.availability.isDisabled() || isRunning)
-        .debugConfirmation(for: item, pendingCommand: $pendingCommand, menu: menu, perform: run)
     }
 
     private var label: some View {
@@ -198,7 +190,6 @@ private struct DebugPickerScreen: View {
     let menu: DebugMenu
 
     @Environment(\.dismiss) private var dismiss
-    @State private var pendingCommand: DebugCommand?
 
     var body: some View {
         List {
@@ -207,16 +198,15 @@ private struct DebugPickerScreen: View {
             }
             if picker.setCustomURL != nil {
                 DebugCustomURLSection { url in
-                    item.request(.setCustomURL(rowID: item.id, url: url), pendingCommand: $pendingCommand, run: select)
+                    item.request(.setCustomURL(rowID: item.id, url: url), run: select)
                 }
             }
         }
         .navigationTitle(item.title)
-        .debugConfirmation(for: item, pendingCommand: $pendingCommand, menu: menu, perform: select)
     }
 
     private func choose(_ option: DebugPickerOption) {
-        item.request(.selectOption(rowID: item.id, optionID: option.id), pendingCommand: $pendingCommand, run: select)
+        item.request(.selectOption(rowID: item.id, optionID: option.id), run: select)
     }
 
     private func select(_ command: DebugCommand) {
@@ -312,57 +302,6 @@ private struct DebugRowTitle: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-        }
-    }
-}
-
-private extension View {
-    /// Asks before running `pendingCommand`, using the row's confirmation text. Runs it with `perform`,
-    /// or dispatches it if no `perform` is given.
-    func debugConfirmation(
-        for item: DebugItem,
-        pendingCommand: Binding<DebugCommand?>,
-        menu: DebugMenu,
-        perform: (@MainActor (DebugCommand) -> Void)? = nil
-    ) -> some View {
-        let isPresented = Binding(
-            get: { pendingCommand.wrappedValue != nil },
-            set: { if !$0 { pendingCommand.wrappedValue = nil } }
-        )
-        return confirmationDialog(
-            item.confirmation?.title ?? item.title,
-            isPresented: isPresented,
-            titleVisibility: .visible,
-            presenting: pendingCommand.wrappedValue
-        ) { command in
-            Button(item.confirmation?.confirmTitle ?? "", role: item.buttonRole) {
-                (perform ?? menu.start)(command)
-            }
-            Button(item.confirmation?.cancelTitle ?? "", role: .cancel) {}
-        } message: { _ in
-            if let message = item.confirmation?.message {
-                Text(message)
-            }
-        }
-    }
-}
-
-private extension DebugItem {
-    var buttonRole: ButtonRole? {
-        role == .destructive ? .destructive : nil
-    }
-
-    /// Runs `command` now, or holds it in `pendingCommand` for the confirmation dialog when the row has one.
-    @MainActor
-    func request(
-        _ command: DebugCommand,
-        pendingCommand: Binding<DebugCommand?>,
-        run: @MainActor (DebugCommand) -> Void
-    ) {
-        if confirmation == nil {
-            run(command)
-        } else {
-            pendingCommand.wrappedValue = command
         }
     }
 }

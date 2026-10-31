@@ -53,8 +53,8 @@ public extension DebugInfo {
     }
 }
 
-/// Why the share sheet couldn't be shown.
-enum DebugLogShareError: Error {
+/// Why the menu couldn't present a share sheet or confirmation.
+enum DebugPresentationError: Error {
     /// No active window to present from.
     case noWindow
 }
@@ -79,6 +79,12 @@ public extension DebugLogDestination {
 
 @MainActor
 private func presentShareSheet(_ urls: [URL]) throws {
+    try presentOverMenu(UIActivityViewController(activityItems: urls, applicationActivities: nil))
+}
+
+/// Presents `controller` over whatever is on top, which is the debug menu while it's open.
+@MainActor
+func presentOverMenu(_ controller: UIViewController) throws {
     let window = UIApplication.shared.connectedScenes
         .compactMap { ($0 as? UIWindowScene)?.keyWindow }
         .first
@@ -87,10 +93,9 @@ private func presentShareSheet(_ urls: [URL]) throws {
         presenter = presented
     }
     guard let presenter else {
-        throw DebugLogShareError.noWindow
+        throw DebugPresentationError.noWindow
     }
-    let controller = UIActivityViewController(activityItems: urls, applicationActivities: nil)
-    // iPad shows the share sheet as a popover, which needs an anchor.
+    // iPad shows share sheets and action sheets as popovers, which need an anchor. iPhone has no popover controller.
     controller.popoverPresentationController?.sourceView = presenter.view
     // sourceRect is in sourceView's own coordinates, so use its bounds, not its frame-relative center.
     let bounds = presenter.view.bounds
