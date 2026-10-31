@@ -1,11 +1,15 @@
 # debug-menu-ios
 
-A debug menu for iOS apps that you declare like a SwiftUI view. You list sections and rows, point
-each row at state your app already has, and attach the menu to a view with `.debugMenuTrigger()`.
-Seven taps on that view open it.
+DebugMenu is a debug menu for iOS apps. You declare it like a SwiftUI view:
 
-The menu never stores your values. Rows read and write through `get`/`set` closures (or a
-`Binding`), so there's no second copy of a setting to keep in sync.
+1. List sections and rows.
+2. Point each row at state that your app already has.
+3. Attach the menu to a view with `.debugMenuTrigger()`.
+
+Seven taps on that view open the menu.
+
+The menu never stores your values. Rows read and write your values through `get`/`set` closures
+(or a `Binding`). Thus you never keep a second copy of a setting in sync.
 
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -29,7 +33,7 @@ The menu never stores your values. Rows read and write through `get`/`set` closu
 ## Installation
 
 Add the package with Swift Package Manager. In Xcode, use **File > Add Package Dependencies** with
-`https://github.com/steamclock/debug-menu-ios.git`. In a `Package.swift`:
+`https://github.com/steamclock/debug-menu-ios.git`. In a `Package.swift` file, add these lines:
 
 ```swift
 dependencies: [
@@ -62,20 +66,20 @@ struct ContentView: View {
 }
 ```
 
-Tap "Hello" seven times and the menu opens in a sheet, showing the build name, version, device and
-iOS version, then a "Features" section with a toggle and a button.
+Tap "Hello" seven times. The menu opens in a sheet. The sheet shows the build name, version,
+device and iOS version. Below them, a "Features" section shows a toggle and a button.
 
-The menu content is a result builder, like a SwiftUI view body. It's rebuilt each time the menu
-shows or changes, so `if` and `for` follow your app's current state.
+The menu content is a result builder, like a SwiftUI view body. The menu rebuilds its content each
+time the menu shows or changes. Thus `if` and `for` follow your app's current state.
 
 ## Rows
 
-Every row takes a title first, then whatever it needs. The examples below come from the example app,
-where `settings` is an `@Observable` model the app owns.
+Every row takes a title first, then whatever else the row needs. The examples below come from the
+example app. In the example app, `settings` is an `@Observable` model that the app owns.
 
 ### Toggle
 
-A toggle reads a `Bool` with `get` and writes it with `set`:
+A toggle reads a `Bool` with `get` and writes the `Bool` with `set`:
 
 ```swift
 DebugToggle("Show all foos", get: { settings.showAllFoos }, set: { settings.showAllFoos = $0 })
@@ -87,19 +91,20 @@ If you have a `Binding`, pass it as `isOn:`:
 DebugToggle("Show all foos", isOn: $showAllFoos)
 ```
 
-Anything you'd have done in a `didSet` goes in `set`.
+Code that you would put in a `didSet` goes in `set`.
 
 ### Button
 
-A button runs a closure. An `async throws` closure works too: the row shows a spinner while it runs,
-then a checkmark, or the error if it threw.
+A button runs a closure. The closure can also be `async throws`. While the closure runs, the row
+shows a spinner. When the closure finishes, the row shows a checkmark, or the error if the closure
+threw one.
 
 ```swift
 DebugButton("Refresh token") { try await settings.refreshToken() }
 DebugButton("Sync (always fails)") { try await settings.sync() }
 ```
 
-Use `role: .destructive` for a red row, and `confirmation:` to ask before the action runs:
+Use `role: .destructive` to make the row red. Use `confirmation:` to ask before the action runs:
 
 ```swift
 DebugButton("Clear cache", role: .destructive, confirmation: .required("Clear the image cache?")) {
@@ -107,7 +112,7 @@ DebugButton("Clear cache", role: .destructive, confirmation: .required("Clear th
 }
 ```
 
-`.required(_:message:confirmTitle:cancelTitle:)` takes an optional message and button labels too.
+`.required(_:message:confirmTitle:cancelTitle:)` also takes an optional message and button labels.
 Toggles and pickers ask the same way with the `.confirmation(_:)` modifier:
 
 ```swift
@@ -118,7 +123,7 @@ DebugPicker.environment(options: AppEnvironment.presets,
 
 ### Picker
 
-A picker chooses one value. The shortest form is over every case of an enum that conforms to
+A picker chooses one value. The shortest form shows every case of an enum that conforms to
 `DebugPickerValue`:
 
 ```swift
@@ -157,18 +162,19 @@ DebugPicker("Log level", selection: $logLevel)
 
 ### Info
 
-An info row shows a read-only value. Tapping it copies the value to the clipboard.
+An info row shows a read-only value. A tap on the row copies the value to the clipboard.
 
 ```swift
 DebugInfo("Cached images", value: "\(settings.cachedImageCount)")
 ```
 
-The value is read each time the menu shows, not once. A `nil` value shows "None".
+The menu reads the value again each time the menu shows. If the value is `nil`, the row shows
+"None".
 
 ### Custom rows
 
-When no built-in row fits, show your own SwiftUI view. The title names the row in its ID and in
-snapshots, and `value:` is optional text that stands in for the view there.
+When no built-in row fits, show your own SwiftUI view. The row's ID and snapshots use the title to
+name the row. `value:` is optional text. In snapshots, the `value:` text takes the place of the view.
 
 ```swift
 DebugCustom("Cart items", value: "\(settings.cartItemCount)") { CartStepper(settings: settings) }
@@ -200,15 +206,15 @@ DebugButton("Clear cart") { settings.cartItemCount = 0 }
 
 - `.help(_:)` adds a line of text under the title.
 - `.hidden(_:)` hides the row while the condition is true.
-- `.disabled(_:reason:)` greys the row out, and shows the reason if you give one.
-- `.id(_:)` sets the row's ID. More on that in [Snapshots and commands](#snapshots-and-commands).
+- `.disabled(_:reason:)` dims the row. If you give a reason, the row shows the reason.
+- `.id(_:)` sets the row's ID. For more about IDs, see [Snapshots and commands](#snapshots-and-commands).
 
-The conditions are read each time the menu shows.
+The menu reads the conditions each time the menu shows.
 
 ## Sections and submenus
 
 `DebugSection` groups rows under a header. `DebugSubmenu` is a row that pushes a nested menu. Both
-take their content inline, and nest as deep as you like:
+take their content inline. You can nest them as deep as you like:
 
 ```swift
 DebugSection("More") {
@@ -222,8 +228,8 @@ DebugSection("More") {
 }
 ```
 
-When part of a menu gets long, move it into a type that conforms to `DebugMenuContent`. That's what
-`NetworkMenu` above is:
+When part of a menu gets long, move that part into a type that conforms to `DebugMenuContent`.
+`NetworkMenu` above is a type like this:
 
 ```swift
 private struct NetworkMenu: DebugMenuContent {
@@ -254,14 +260,14 @@ if settings.showAllFoos {
 
 ## Keeping the menu up to date
 
-Rows read your values while they render, so SwiftUI keeps them current the same way it keeps your
-own views current. Changes made through the menu's own rows show up right away. So do changes from
-anywhere else to an `@Observable` model, like the cart stepper in the example app, which is a custom
-row that changes `settings.cartItemCount` directly.
+Rows read your values while the rows render. Thus SwiftUI keeps the rows current, the same way it
+keeps your own views current. Changes through the menu's own rows appear immediately. Changes to
+an `@Observable` model from anywhere else also appear immediately. For example, the cart stepper in
+the example app is a custom row that changes `settings.cartItemCount` directly.
 
-SwiftUI can't see every kind of storage, though. When a value lives somewhere it can't observe, like
-`UserDefaults` read through a computed property, and something outside the menu changes it while the
-menu is open, call `DebugMenuChanges.shared.send()` so the menu reads its values again:
+SwiftUI can't observe every kind of storage, though. One example is `UserDefaults` read through a
+computed property. Sometimes code outside the menu changes a value like this while the menu is open.
+In that case, call `DebugMenuChanges.shared.send()`. The menu then reads its values again:
 
 ```swift
 var isDarkLaunchEnabled: Bool {
@@ -277,12 +283,12 @@ Button("Flip dark launch, then send()") {
 }
 ```
 
-You don't need `send()` after a change made through a menu row. The menu sends it after every
-command.
+You don't need `send()` after a change through a menu row. The menu sends the signal itself after
+every command.
 
 ## Built-in rows
 
-These are regular rows with the title and wiring filled in. Add the ones you want.
+These are regular rows that already have a title and wiring. Add the ones you want.
 
 ### Build and device info
 
@@ -298,7 +304,7 @@ The others are `DebugInfo.buildName` and `DebugInfo.deviceName`.
 
 The device name comes from `UIDevice.name`. That's only the model, like "iPhone", unless your app
 has the `com.apple.developer.device-information.user-assigned-device-name` entitlement. We show
-whatever iOS gives us.
+whatever value iOS gives us.
 
 ### Environment, logging and send logs
 
@@ -309,17 +315,18 @@ DebugToggle.advancedLogging(get: { settings.isAdvancedLoggingEnabled }, set: { s
 DebugButton.sendLogs(logs: { settings.logFiles }, destination: .shareSheet)
 ```
 
-- `DebugPicker.environment` is an "Environment" picker. Do the actual switch (sign out, point at a
-  new server) in `set`. See [Environments](#environments) below.
+- `DebugPicker.environment` is an "Environment" picker. Do the actual switch in `set`, for example
+  sign out and use a new server. See [Environments](#environments) below.
 - `DebugToggle.advancedLogging` is an "Advanced logging" toggle over your own setting.
 - `DebugButton.sendLogs` is a "Send logs" button. Your `logs` closure returns `DebugLogFile`s:
   `.file(URL)` for a file on disk, or `.data(Data, fileName:)` for logs in memory.
 
 ### Environments
 
-The environment picker takes your own type, as long as it conforms to `DebugEnvironment`, which needs a
-`title` and a `url`. The picker shows each URL under its title. A struct keeps it short, and anything
-else an environment needs (API keys, other hosts) is another property:
+The environment picker takes your own type. The type must conform to `DebugEnvironment`, which
+requires a `title` and a `url`. The picker shows each URL under its title. A struct is the shortest
+way to write the type. If an environment needs more data (API keys, other hosts), add more
+properties:
 
 ```swift
 struct AppEnvironment: DebugEnvironment {
@@ -332,8 +339,8 @@ struct AppEnvironment: DebugEnvironment {
 }
 ```
 
-To let people type in any server, like a local machine, pass `custom:`. It turns the URL they type
-into one of your environments:
+To let people enter any server, like a local machine, pass `custom:`. The `custom:` closure turns
+the entered URL into one of your environments:
 
 ```swift
 DebugPicker.environment(options: AppEnvironment.presets,
@@ -341,13 +348,14 @@ DebugPicker.environment(options: AppEnvironment.presets,
                         custom: { AppEnvironment(title: "Custom", url: $0) })
 ```
 
-The custom URL field is off unless you pass `custom:`. It only accepts `http` and `https` URLs with a
-host. Once a custom environment is chosen, it's listed with the presets and shows as selected.
+The custom URL field is off unless you pass `custom:`. The field only accepts `http` and `https`
+URLs with a host. After someone chooses a custom environment, the picker lists that environment with
+the presets and shows it as selected.
 
 ### Send logs
 
 `.shareSheet` is the only destination we ship. It shows the system share sheet, so you can mail,
-AirDrop or save the logs. To send them somewhere else, use `.custom`:
+AirDrop or save the logs. To send the logs somewhere else, use `.custom`:
 
 ```swift
 DebugButton.sendLogs(
@@ -358,14 +366,14 @@ DebugButton.sendLogs(
 
 ## Opening the menu
 
-`.debugMenuTrigger` opens the menu in a sheet. By default that's seven taps with one finger. You can
-change the count:
+`.debugMenuTrigger` opens the menu in a sheet. By default, the gesture is seven taps with one finger.
+You can change the count:
 
 ```swift
 .debugMenuTrigger(taps: 10) { … }
 ```
 
-Or open it with a long press instead:
+You can also open the menu with a long press:
 
 ```swift
 Text("Long press to open it with a password (\"debug\")")
@@ -376,11 +384,11 @@ Text("Long press to open it with a password (\"debug\")")
     }
 ```
 
-The gesture is on the view you attach it to, so give that view a hit area big enough to find.
+The gesture is on the view that has the trigger. Give that view a hit area big enough to find.
 
-If you'd rather show the menu yourself, `DebugMenuView` takes the same content. Put it in a
-`NavigationStack`, since submenus and pickers push screens. It doesn't ask for a
-password; that's part of the trigger.
+To show the menu yourself, use `DebugMenuView`. It takes the same content. Put the `DebugMenuView`
+in a `NavigationStack`, because submenus and pickers push screens. `DebugMenuView` doesn't ask for a
+password. Only the trigger asks for a password.
 
 ```swift
 struct SettingsScreen: View {
@@ -404,8 +412,8 @@ struct SettingsScreen: View {
 There's no password by default. To add one, pass an `access` policy to the trigger, as in the long
 press example above. The menu asks for the password after the gesture.
 
-`.passwordSHA256` takes the hex SHA-256 hash of the password, so the password itself isn't in your
-app. You can make one in Terminal:
+`.passwordSHA256` takes the hex SHA-256 hash of the password. Thus the password itself isn't in your
+app. To make a hash, run this command in Terminal:
 
 ```bash
 printf 'debug' | shasum -a 256
@@ -417,17 +425,19 @@ To check the password some other way, use `.custom`:
 .debugMenuTrigger(taps: 10, access: .custom { $0 == "letmein" }) { … }
 ```
 
-Once someone enters the right password, the menu stops asking, including after a relaunch. We store
-an "unlocked" flag in `UserDefaults`, never the password. Deleting the app resets it.
+After someone enters the correct password, the menu stops asking, even after a relaunch. We store
+an "unlocked" flag in `UserDefaults`. We never store the password. Deleting the app resets the flag.
 
 ## Snapshots and commands
 
-Building a menu with `DebugMenu { }` gives you plain data you can inspect without any UI. That's
-handy in unit tests, and it's what a remote debugger would use later.
+`DebugMenu { }` builds a menu as plain data. You can inspect that data without any UI. This is
+useful in unit tests. A remote debugger would also use this data later.
 
-`snapshot()` describes the whole menu as it is right now. It's `Codable`, and it reads each row's
-current value through its `get`. `dispatch(_:)` applies a `Codable` `DebugCommand` to a row, the same
-way tapping it would. Confirmations aren't shown, so ask first if the row has one.
+`snapshot()` describes the whole menu as it is right now. The snapshot is `Codable`. `snapshot()`
+reads each row's current value through the row's `get`.
+
+`dispatch(_:)` applies a `Codable` `DebugCommand` to a row, the same way a tap on the row would.
+`dispatch(_:)` doesn't show confirmations. If the row has a confirmation, ask first.
 
 ```swift
 let menu = DebugMenu {
@@ -442,13 +452,13 @@ if case .failure(let error) = result {
 ```
 
 The commands are `.setToggle`, `.selectOption` (by option ID), `.setCustomURL` (for an environment
-picker with `custom:`), `.runAction` and `.runAsyncAction`. An async action's error comes back in the
-result.
+picker with `custom:`), `.runAction` and `.runAsyncAction`. The result contains any error from an
+async action.
 
-Row IDs are the titles on the row's path, joined with `/`. A "Clear cache" button in a "Cache"
-submenu in a "More" section is `More/Cache/Clear cache`. They're the same on every launch and device.
-If a title changes at runtime, or two rows share one, set the ID yourself with `.id(_:)`. Sections and
-submenus take `.id(_:)` too:
+A row ID is the titles on the row's path, joined with `/`. For example, a "Clear cache" button in a
+"Cache" submenu in a "More" section has the ID `More/Cache/Clear cache`. Row IDs stay the same on
+every launch and device. If a title changes at runtime, or two rows share a title, set the ID
+yourself with `.id(_:)`. Sections and submenus also take `.id(_:)`:
 
 ```swift
 DebugSection("Advanced") {
@@ -456,12 +466,13 @@ DebugSection("Advanced") {
 }.id("advanced")
 ```
 
-Picker option IDs are `String(describing:)` of each value, so an enum case's ID is its name.
+A picker option's ID is `String(describing:)` of the option's value. Thus the ID of an enum case is
+the case name.
 
 ## Example app
 
-`Example/` has an app that uses every feature. The Xcode project is generated with
-[XcodeGen](https://github.com/yonaskolb/XcodeGen):
+`Example/` has an app that uses every feature. [XcodeGen](https://github.com/yonaskolb/XcodeGen)
+generates the Xcode project:
 
 ```bash
 cd Example
@@ -473,8 +484,8 @@ The menu is in `Example/DebugMenuExample/ExampleMenu.swift`.
 
 ## Upgrading from 1.x
 
-2.0 is a rewrite with a new API, and there's no compatibility layer. It needs iOS 17. Most 1.x menus should get shorter
-along the way. Here's where each 1.x piece went:
+2.0 is a rewrite with a new API. It has no compatibility layer, and it needs iOS 17. Most 1.x menus
+should get shorter after the upgrade. This table shows the 2.0 replacement for each 1.x piece:
 
 | 1.x | 2.0 |
 |-----|-----|
@@ -492,7 +503,7 @@ along the way. Here's where each 1.x piece went:
 | `DebugMenuAccessConfig(passwordSHA256:longPressDuration:)` and `.debugMenuToggle(config:isVisible:)` | `.debugMenuTrigger(longPressDuration:access: .passwordSHA256(…))` |
 | `DebugMenuView(dataSource:)` | `DebugMenuView { … }` |
 
-Text-field alerts and host controllers are gone as row types. A custom row covers both:
+2.0 has no row types for text-field alerts or host controllers. A custom row covers both:
 
 ```swift
 struct RedeemCodeRow: View {
@@ -515,5 +526,5 @@ DebugCustom("Switch endpoint") {
 }
 ```
 
-1.x toggles stored their values in `UserDefaults` under the `key` you gave them. If you want to keep
-those values, read the same key, for example with `@AppStorage("showFoosKey")`.
+1.x toggles stored their values in `UserDefaults` under the `key` you gave them. To keep those
+values, read the same key, for example with `@AppStorage("showFoosKey")`.
