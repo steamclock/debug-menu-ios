@@ -104,7 +104,9 @@ struct DebugPickerConfiguration: Sendable {
         options.first { $0.isSelected() }
     }
 
-    /// Option IDs are `String(describing:)` of each value, so an enum case gives its case name.
+    /// Option IDs are `String(describing:)` of each value, so an enum case gives its case name. Two values can
+    /// describe themselves the same way (a class's default description is its type name), so a repeated ID gets
+    /// the option's position appended to keep every option selectable.
     ///
     /// With `customURL`, the picker also takes a typed-in server URL, and lists the app's current value as an
     /// option when it isn't one of `values`, so a custom choice still shows as selected.
@@ -125,9 +127,11 @@ struct DebugPickerConfiguration: Sendable {
         self.makeOptions = {
             let current = get()
             let listedValues = includesCurrentValue && !values.contains(current) ? values + [current] : values
-            return listedValues.map { value in
-                DebugPickerOption(
-                    id: String(describing: value),
+            var usedIDs = Set<String>()
+            return listedValues.enumerated().map { index, value in
+                let describedID = String(describing: value)
+                return DebugPickerOption(
+                    id: usedIDs.insert(describedID).inserted ? describedID : "\(describedID)#\(index)",
                     title: title(value),
                     subtitle: subtitle(value),
                     isSelected: { get() == value },

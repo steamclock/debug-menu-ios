@@ -25,8 +25,21 @@ struct DebugItemRow: View {
         case .picker(let picker):
             DebugPickerRow(item: item, picker: picker, menu: menu)
         case .custom(let custom):
-            custom.makeView()
+            DebugCustomRow(item: item, custom: custom)
         }
+    }
+}
+
+private struct DebugCustomRow: View {
+    let item: DebugItem
+    let custom: DebugCustomConfiguration
+
+    @Environment(DebugMenuChanges.self) private var changes
+
+    var body: some View {
+        let _ = changes.generation
+        custom.makeView()
+            .disabled(item.availability.isDisabled())
     }
 }
 
@@ -190,8 +203,11 @@ private struct DebugPickerScreen: View {
     let menu: DebugMenu
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(DebugMenuChanges.self) private var changes
 
     var body: some View {
+        // The options list itself comes from the app's value (a custom environment is appended), so rebuild it too.
+        let _ = changes.generation
         List {
             ForEach(picker.options) { option in
                 DebugPickerOptionRow(option: option) { choose(option) }

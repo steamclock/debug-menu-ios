@@ -36,7 +36,7 @@ final class DebugMenuLockTests: XCTestCase {
     }
 
     func testCustomPolicyUnlockPersists() {
-        let policy = DebugMenuAccessPolicy.custom { $0 == "zipline" }
+        let policy = DebugMenuAccessPolicy.custom(id: "zipline") { $0 == "zipline" }
         let lock = DebugMenuLock(policy: policy, defaults: defaults)
         XCTAssertFalse(lock.isUnlocked)
 
@@ -45,6 +45,12 @@ final class DebugMenuLockTests: XCTestCase {
 
         XCTAssertTrue(lock.unlock(password: "zipline"))
         XCTAssertTrue(DebugMenuLock(policy: policy, defaults: defaults).isUnlocked)
+    }
+
+    func testChangedCustomIDLocksAgain() {
+        XCTAssertTrue(DebugMenuLock(policy: .custom(id: "one") { $0 == "one" }, defaults: defaults).unlock(password: "one"))
+
+        XCTAssertFalse(DebugMenuLock(policy: .custom(id: "two") { $0 == "two" }, defaults: defaults).isUnlocked)
     }
 
     func testChangedPasswordLocksAgain() {
@@ -58,7 +64,7 @@ final class DebugMenuLockTests: XCTestCase {
     func testAccessPolicy() {
         XCTAssertTrue(DebugMenuAccessPolicy.passwordSHA256(Self.debugHash).allowsAccess(password: "debug"))
         XCTAssertFalse(DebugMenuAccessPolicy.passwordSHA256(Self.debugHash).allowsAccess(password: "release"))
-        XCTAssertTrue(DebugMenuAccessPolicy.custom { $0 == "zipline" }.allowsAccess(password: "zipline"))
-        XCTAssertFalse(DebugMenuAccessPolicy.custom { $0 == "zipline" }.allowsAccess(password: "other"))
+        XCTAssertTrue(DebugMenuAccessPolicy.custom(id: "zipline") { $0 == "zipline" }.allowsAccess(password: "zipline"))
+        XCTAssertFalse(DebugMenuAccessPolicy.custom(id: "zipline") { $0 == "zipline" }.allowsAccess(password: "other"))
     }
 }

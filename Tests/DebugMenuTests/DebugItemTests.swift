@@ -19,6 +19,21 @@ final class DebugItemTests: XCTestCase {
         XCTAssertTrue(disabled.isSelected())
     }
 
+    func testOptionsThatDescribeAlikeGetDistinctIDs() {
+        struct Server: Hashable, Sendable, CustomStringConvertible {
+            let url: String
+            var description: String { "Server" }
+        }
+        var server = Server(url: "https://a.example.com")
+        let options = [server, Server(url: "https://b.example.com")]
+        let configuration = DebugPickerConfiguration(options: options, title: \.url, get: { server }, set: { server = $0 })
+
+        XCTAssertEqual(configuration.options.map(\.id), ["Server", "Server#1"])
+
+        configuration.options[1].select()
+        XCTAssertEqual(server, options[1])
+    }
+
     func testMutuallyExclusiveStateCanBeRepresentedAsPicker() {
         var environment = EnvironmentState.production
         let configuration = DebugPickerConfiguration(get: { environment }, set: { environment = $0 })

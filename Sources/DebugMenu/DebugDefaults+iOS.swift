@@ -68,7 +68,10 @@ public extension DebugLogDestination {
             case .file(let url):
                 return url
             case .data(let data, let fileName):
-                let url = URL.temporaryDirectory.appending(path: fileName)
+                // A folder per log, so two logs with the same name don't overwrite each other.
+                let folder = URL.temporaryDirectory.appending(path: UUID().uuidString)
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                let url = folder.appending(path: fileName)
                 try data.write(to: url)
                 return url
             }
@@ -85,7 +88,9 @@ private func presentShareSheet(_ urls: [URL]) throws {
 /// Presents `controller` over whatever is on top, which is the debug menu while it's open.
 @MainActor
 func presentOverMenu(_ controller: UIViewController) throws {
+    // Background scenes keep a key window too, so only look at the one the user is looking at.
     let window = UIApplication.shared.connectedScenes
+        .filter { $0.activationState == .foregroundActive }
         .compactMap { ($0 as? UIWindowScene)?.keyWindow }
         .first
     var presenter = window?.rootViewController

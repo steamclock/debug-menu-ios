@@ -419,10 +419,11 @@ app. To make a hash, run this command in Terminal:
 printf 'debug' | shasum -a 256
 ```
 
-To check the password some other way, use `.custom`:
+To check the password some other way, use `.custom`. The `id` names your check in the remembered
+unlock, so change it when you change the check:
 
 ```swift
-.debugMenuTrigger(taps: 10, access: .custom { $0 == "letmein" }) { … }
+.debugMenuTrigger(taps: 10, access: .custom(id: "v1") { $0 == "letmein" }) { … }
 ```
 
 After someone enters the correct password, the menu stops asking, even after a relaunch. We store
