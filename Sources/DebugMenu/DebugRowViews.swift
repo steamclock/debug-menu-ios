@@ -8,6 +8,7 @@ import UIKit
 /// settings object, say), so SwiftUI would skip the row when the menu rebuilds. Observation only catches changes to
 /// `@Observable` models, so every view that calls an app closure in its `body` also reads
 /// `DebugMenuChanges.generation`, and reads the value again after a command or `send()`.
+@available(iOS 17, *)
 struct DebugItemRow: View {
     let item: DebugItem
     let menu: DebugMenu
@@ -30,6 +31,7 @@ struct DebugItemRow: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugCustomRow: View {
     let item: DebugItem
     let custom: DebugCustomConfiguration
@@ -43,6 +45,7 @@ private struct DebugCustomRow: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugToggleRow: View {
     let item: DebugItem
     let get: @MainActor @Sendable () -> Bool
@@ -63,6 +66,7 @@ private struct DebugToggleRow: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugActionRow: View {
     let item: DebugItem
     let command: DebugCommand
@@ -81,6 +85,7 @@ private struct DebugActionRow: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugAsyncActionRow: View {
     let item: DebugItem
     let menu: DebugMenu
@@ -130,6 +135,7 @@ private struct DebugAsyncActionRow: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugInfoRow: View {
     private static let copiedDuration = Duration.seconds(1.5)
     private static let emptyValue = "None"
@@ -170,6 +176,7 @@ private struct DebugInfoRow: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugPickerRow: View {
     let item: DebugItem
     let picker: DebugPickerConfiguration
@@ -197,6 +204,7 @@ private struct DebugPickerRow: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugPickerScreen: View {
     let item: DebugItem
     let picker: DebugPickerConfiguration
@@ -234,6 +242,7 @@ private struct DebugPickerScreen: View {
 }
 
 /// A field for pointing an environment picker at any server. "Use" stays disabled until the text is a server URL.
+@available(iOS 17, *)
 private struct DebugCustomURLSection: View {
     private static let header = "Custom URL"
     private static let placeholder = "https://"
@@ -261,6 +270,7 @@ private struct DebugCustomURLSection: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugPickerOptionRow: View {
     private static let selectedImageName = "checkmark"
 
@@ -297,6 +307,7 @@ private struct DebugPickerOptionRow: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugRowTitle: View {
     let item: DebugItem
 
@@ -322,6 +333,7 @@ private struct DebugRowTitle: View {
     }
 }
 
+@available(iOS 17, *)
 private extension DebugCommandResult {
     private static let successMessage = "Succeeded"
     private static let failurePrefix = "Failed: "

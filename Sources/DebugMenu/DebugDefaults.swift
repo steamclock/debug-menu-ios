@@ -1,5 +1,6 @@
 import Foundation
 
+@available(iOS 17, *)
 private enum DefaultTitle {
     static let environment = "Environment"
     static let advancedLogging = "Advanced logging"
@@ -8,6 +9,7 @@ private enum DefaultTitle {
 
 /// A server the app can run against, for `DebugPicker.environment`. Conform the app's own environment type, and
 /// give it whatever else an environment needs alongside its title and URL.
+@available(iOS 17, *)
 public protocol DebugEnvironment: Hashable, Sendable {
     /// The environment's name, like "Staging".
     var title: String { get }
@@ -15,6 +17,7 @@ public protocol DebugEnvironment: Hashable, Sendable {
     var url: URL { get }
 }
 
+@available(iOS 17, *)
 public extension DebugPicker {
     /// An "Environment" picker. `set` is where the app switches, e.g. by signing out and pointing at a new server.
     ///
@@ -38,6 +41,7 @@ public extension DebugPicker {
     }
 }
 
+@available(iOS 17, *)
 extension URL {
     private static let serverSchemes: Set<String> = ["http", "https"]
 
@@ -47,6 +51,7 @@ extension URL {
     }
 }
 
+@available(iOS 17, *)
 public extension DebugToggle {
     /// An "Advanced logging" toggle over the app's own logging setting.
     static func advancedLogging(
@@ -58,6 +63,7 @@ public extension DebugToggle {
 }
 
 /// One log for `DebugButton.sendLogs(logs:destination:)`.
+@available(iOS 17, *)
 public enum DebugLogFile: Sendable, Equatable {
     /// A log file already on disk.
     case file(URL)
@@ -66,6 +72,7 @@ public enum DebugLogFile: Sendable, Equatable {
 }
 
 /// Where `DebugButton.sendLogs(logs:destination:)` sends the logs.
+@available(iOS 17, *)
 public struct DebugLogDestination: Sendable {
     let send: @MainActor @Sendable ([DebugLogFile]) async throws -> Void
 
@@ -75,6 +82,7 @@ public struct DebugLogDestination: Sendable {
     }
 }
 
+@available(iOS 17, *)
 public extension DebugButton {
     /// A "Send logs" button. When tapped, `logs` gathers the app's logs and `destination` sends them.
     /// An error thrown by either shows on the row.

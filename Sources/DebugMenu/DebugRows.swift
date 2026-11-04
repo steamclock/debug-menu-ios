@@ -1,9 +1,11 @@
 /// A single menu row. The built-in rows conform, so the modifiers below work on all of them.
+@available(iOS 17, *)
 public protocol DebugRow: DebugMenuContent {
     /// The row's built definition.
     var item: DebugItem { get set }
 }
 
+@available(iOS 17, *)
 public extension DebugRow {
     /// The row as a menu node.
     var body: DebugMenuGroup {
@@ -59,6 +61,7 @@ public extension DebugRow {
 }
 
 /// An on/off row that reads and writes a Bool the app owns.
+@available(iOS 17, *)
 public struct DebugToggle: DebugRow {
     /// The row's built definition.
     public var item: DebugItem
@@ -74,6 +77,7 @@ public struct DebugToggle: DebugRow {
 }
 
 /// A row that runs an action when tapped.
+@available(iOS 17, *)
 public struct DebugButton: DebugRow {
     /// The row's built definition.
     public var item: DebugItem
@@ -100,6 +104,7 @@ public struct DebugButton: DebugRow {
 }
 
 /// A row that picks one value from a list of options.
+@available(iOS 17, *)
 public struct DebugPicker: DebugRow {
     /// The row's built definition.
     public var item: DebugItem
@@ -132,6 +137,7 @@ public struct DebugPicker: DebugRow {
 }
 
 /// A read-only row showing a value, which can be copied.
+@available(iOS 17, *)
 public struct DebugInfo: DebugRow {
     /// The row's built definition.
     public var item: DebugItem

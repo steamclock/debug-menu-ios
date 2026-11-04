@@ -1,6 +1,7 @@
 #if os(iOS)
 import UIKit
 
+@available(iOS 17, *)
 private enum DefaultInfo {
     static let buildName = "Build name"
     static let buildVersion = "Build version"
@@ -12,6 +13,7 @@ private enum DefaultInfo {
     static let buildKey = "CFBundleVersion"
 }
 
+@available(iOS 17, *)
 @MainActor
 public extension DebugInfo {
     /// The app's display name, or its bundle name if it has no display name.
@@ -54,11 +56,13 @@ public extension DebugInfo {
 }
 
 /// Why the menu couldn't present a share sheet or confirmation.
+@available(iOS 17, *)
 enum DebugPresentationError: Error {
     /// No active window to present from.
     case noWindow
 }
 
+@available(iOS 17, *)
 public extension DebugLogDestination {
     /// Shows the system share sheet with the logs, over the debug menu. `.data` logs are written to temporary
     /// files first so they keep their names. The row reports success once the sheet is shown.
@@ -80,12 +84,14 @@ public extension DebugLogDestination {
     }
 }
 
+@available(iOS 17, *)
 @MainActor
 private func presentShareSheet(_ urls: [URL]) throws {
     try presentOverMenu(UIActivityViewController(activityItems: urls, applicationActivities: nil))
 }
 
 /// Presents `controller` over whatever is on top, which is the debug menu while it's open.
+@available(iOS 17, *)
 @MainActor
 func presentOverMenu(_ controller: UIViewController) throws {
     // Background scenes keep a key window too, so only look at the one the user is looking at.

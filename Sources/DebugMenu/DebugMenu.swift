@@ -10,6 +10,7 @@ private let logger = Logger(subsystem: "DebugMenu", category: "DebugMenu")
 ///
 /// If two nodes end up with the same ID, the later ones get `#2`, `#3` and so on, in declaration order,
 /// and a notice is logged. Give one of them an explicit `.id(_:)` to choose a stable ID instead.
+@available(iOS 17, *)
 public struct DebugMenu: Sendable {
     let children: [DebugMenuNode]
     let itemsByID: [String: DebugItem]
@@ -27,6 +28,7 @@ public struct DebugMenu: Sendable {
 }
 
 /// Turns each node's local key into a full, unique path ID.
+@available(iOS 17, *)
 private struct DebugMenuIDResolver {
     private static let pathSeparator = "/"
     private static let duplicateMarker = "#"

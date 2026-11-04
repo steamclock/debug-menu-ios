@@ -4,6 +4,7 @@ import Foundation
 ///
 /// Only a marker of which policy was unlocked is stored, never the password. Changing the password hash locks the
 /// menu again.
+@available(iOS 17, *)
 struct DebugMenuLock {
     static let unlockedKey = "DebugMenu.isUnlocked"
 

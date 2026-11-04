@@ -1,6 +1,7 @@
 import Foundation
 
 /// How a row is visually and behaviourally treated.
+@available(iOS 17, *)
 public enum DebugItemRole: String, Codable, Sendable {
     /// A regular row.
     case normal
@@ -9,6 +10,7 @@ public enum DebugItemRole: String, Codable, Sendable {
 }
 
 /// A confirmation shown before a row's action runs.
+@available(iOS 17, *)
 public struct DebugConfirmation: Equatable, Codable, Sendable {
     // `@usableFromInline` lets the public initializers' default arguments use these without making them API.
     @usableFromInline static let defaultConfirmTitle = "Continue"
@@ -48,6 +50,7 @@ public struct DebugConfirmation: Equatable, Codable, Sendable {
 }
 
 /// A value a picker row can choose from all of its cases.
+@available(iOS 17, *)
 public protocol DebugPickerValue: CaseIterable, Hashable, Sendable {
     /// The option's label.
     var debugTitle: String { get }
@@ -55,12 +58,14 @@ public protocol DebugPickerValue: CaseIterable, Hashable, Sendable {
     var debugSubtitle: String? { get }
 }
 
+@available(iOS 17, *)
 public extension DebugPickerValue {
     /// No subtitle by default.
     var debugSubtitle: String? { nil }
 }
 
 /// Visibility and disabled state for a row, read when the menu is shown.
+@available(iOS 17, *)
 struct DebugItemAvailability: Sendable {
     let isVisible: @MainActor @Sendable () -> Bool
     let isDisabled: @MainActor @Sendable () -> Bool
@@ -80,6 +85,7 @@ struct DebugItemAvailability: Sendable {
 }
 
 /// One selectable value in a picker row.
+@available(iOS 17, *)
 struct DebugPickerOption: Identifiable, Sendable {
     let id: String
     let title: String
@@ -89,6 +95,7 @@ struct DebugPickerOption: Identifiable, Sendable {
 }
 
 /// Type-erased picker state. Options are rebuilt on each read so `isSelected` reflects the app's value.
+@available(iOS 17, *)
 struct DebugPickerConfiguration: Sendable {
     private let makeOptions: @MainActor @Sendable () -> [DebugPickerOption]
     /// Sets the app's value from a typed-in server URL. `nil` when the picker doesn't take custom URLs.
@@ -150,6 +157,7 @@ struct DebugPickerConfiguration: Sendable {
 }
 
 /// The kind of interaction a row represents.
+@available(iOS 17, *)
 enum DebugItemKind: Sendable {
     /// A Bool toggle. `get` reads the app's value, `set` writes it.
     case toggle(get: @MainActor @Sendable () -> Bool, set: @MainActor @Sendable (Bool) -> Void)
@@ -166,6 +174,7 @@ enum DebugItemKind: Sendable {
 }
 
 /// A built row. Its contents are internal; read rows through `DebugMenuSnapshot`.
+@available(iOS 17, *)
 public struct DebugItem: Sendable {
     /// Starts as the row's local key (its explicit ID or title). Building the menu prefixes it with the tree path.
     var id: String

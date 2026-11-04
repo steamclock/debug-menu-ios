@@ -11,6 +11,7 @@
 ///     }
 /// }
 /// ```
+@available(iOS 17, *)
 @MainActor
 public protocol DebugMenuContent {
     /// The rows, sections and submenus this content adds to the menu.
@@ -18,6 +19,7 @@ public protocol DebugMenuContent {
 }
 
 /// Built menu content, produced by `DebugMenuBuilder`. It has no public members.
+@available(iOS 17, *)
 public struct DebugMenuGroup: DebugMenuContent, Sendable {
     let nodes: [DebugMenuNode]
 
@@ -28,6 +30,7 @@ public struct DebugMenuGroup: DebugMenuContent, Sendable {
 }
 
 /// Builds menu content from rows, sections, submenus, `if`, `if #available` and `for` loops.
+@available(iOS 17, *)
 @MainActor
 @resultBuilder
 public enum DebugMenuBuilder {
@@ -68,11 +71,13 @@ public enum DebugMenuBuilder {
 }
 
 /// A node in the built menu tree.
+@available(iOS 17, *)
 enum DebugMenuNode: Sendable {
     case row(DebugItem)
     case container(DebugContainer)
 }
 
+@available(iOS 17, *)
 extension DebugMenuNode: Identifiable {
     var id: String {
         switch self {
@@ -83,12 +88,14 @@ extension DebugMenuNode: Identifiable {
 }
 
 /// One section of a menu screen's list: a `DebugSection`, or an untitled run of the nodes between sections.
+@available(iOS 17, *)
 struct DebugListSection: Identifiable {
     let id: String
     let title: String?
     let nodes: [DebugMenuNode]
 }
 
+@available(iOS 17, *)
 extension [DebugMenuNode] {
     /// These nodes as list sections, so a screen's list holds only sections.
     ///
@@ -110,6 +117,7 @@ extension [DebugMenuNode] {
     }
 }
 
+@available(iOS 17, *)
 private extension [DebugListSection] {
     mutating func appendUntitled(_ nodes: inout [DebugMenuNode]) {
         guard let first = nodes.first else {
@@ -121,6 +129,7 @@ private extension [DebugListSection] {
 }
 
 /// A section or submenu and its children.
+@available(iOS 17, *)
 struct DebugContainer: Sendable {
     enum Style: String, Sendable {
         case section
@@ -135,6 +144,7 @@ struct DebugContainer: Sendable {
 }
 
 /// A titled group of rows, like a `Section` in a SwiftUI `List`.
+@available(iOS 17, *)
 public struct DebugSection: DebugMenuContent, Sendable {
     private var container: DebugContainer
 
@@ -157,6 +167,7 @@ public struct DebugSection: DebugMenuContent, Sendable {
 }
 
 /// A row that opens a nested menu. Declare its content inline, or with a type that conforms to `DebugMenuContent`.
+@available(iOS 17, *)
 public struct DebugSubmenu: DebugMenuContent, Sendable {
     private var container: DebugContainer
 

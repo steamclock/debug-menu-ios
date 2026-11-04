@@ -3,6 +3,7 @@ import SwiftUI
 #endif
 
 /// Storage for an app-supplied row. The view is kept apart from `DebugItem` so the rest of the model stays SwiftUI-free.
+@available(iOS 17, *)
 struct DebugCustomConfiguration: Sendable {
     /// Optional text the app supplies so the row has a value outside the UI, e.g. in a snapshot.
     let text: @MainActor @Sendable () -> String?
