@@ -1,6 +1,7 @@
 #if os(iOS)
 import SwiftUI
 
+@available(iOS 17, *)
 public extension View {
     /// Opens the debug menu in a sheet when this view is tapped `taps` times with one finger, 7 by default.
     ///
@@ -37,6 +38,7 @@ public extension View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugMenuTrigger: ViewModifier {
     let gesture: AnyGesture<Void>
     let lock: DebugMenuLock
@@ -54,6 +56,7 @@ private struct DebugMenuTrigger: ViewModifier {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugMenuSheet: View {
     private static let doneTitle = "Done"
 
@@ -76,6 +79,7 @@ private struct DebugMenuSheet: View {
 }
 
 /// Shows a password form until the lock is open, then the menu.
+@available(iOS 17, *)
 private struct DebugMenuGate: View {
     private static let passwordPlaceholder = "Password"
     private static let unlockTitle = "Unlock"

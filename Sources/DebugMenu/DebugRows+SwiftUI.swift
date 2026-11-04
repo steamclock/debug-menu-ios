@@ -2,6 +2,7 @@
 import SwiftUI
 
 /// A row that shows your own SwiftUI view.
+@available(iOS 17, *)
 public struct DebugCustom: DebugRow {
     /// The row's built definition.
     public var item: DebugItem
@@ -18,6 +19,7 @@ public struct DebugCustom: DebugRow {
     }
 }
 
+@available(iOS 17, *)
 public extension DebugToggle {
     /// Creates a toggle backed by a `Binding`.
     init(_ title: String, isOn: Binding<Bool>) {
@@ -25,6 +27,7 @@ public extension DebugToggle {
     }
 }
 
+@available(iOS 17, *)
 public extension DebugPicker {
     /// Creates a picker over every case of a `DebugPickerValue`, backed by a `Binding`.
     init<Value: DebugPickerValue>(_ title: String, selection: Binding<Value>) {

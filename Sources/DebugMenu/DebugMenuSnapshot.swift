@@ -2,6 +2,7 @@
 ///
 /// Everything the menu UI can see is here, keyed by stable node IDs, so a remote can show the menu and drive it
 /// with `DebugCommand`s.
+@available(iOS 17, *)
 public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
     /// The kind of a node, without its state. `DebugCommandError.wrongKind` reports it.
     public enum Kind: String, Codable, Sendable {
@@ -107,6 +108,7 @@ public struct DebugMenuSnapshot: Codable, Sendable, Equatable {
     public let nodes: [Node]
 }
 
+@available(iOS 17, *)
 public extension DebugMenu {
     /// Describes the whole menu as it is right now.
     @MainActor
@@ -115,6 +117,7 @@ public extension DebugMenu {
     }
 }
 
+@available(iOS 17, *)
 extension DebugItemKind {
     /// The row's kind and current state, read through its closures.
     @MainActor
@@ -140,6 +143,7 @@ extension DebugItemKind {
     }
 }
 
+@available(iOS 17, *)
 private extension DebugMenuSnapshot.Node {
     @MainActor
     init(_ node: DebugMenuNode) {

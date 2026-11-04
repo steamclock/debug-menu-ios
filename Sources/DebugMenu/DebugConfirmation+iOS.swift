@@ -5,6 +5,7 @@ import UIKit
 
 private let logger = Logger(subsystem: "DebugMenu", category: "DebugConfirmation")
 
+@available(iOS 17, *)
 extension DebugItem {
     var buttonRole: ButtonRole? {
         role == .destructive ? .destructive : nil

@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "DebugMenu",
     platforms: [
-        .iOS(.v17),
+        .iOS(.v15),
         // Declared only so `swift test` runs the model tests on a Mac. The SwiftUI layer is iOS only.
         .macOS(.v14)
     ],

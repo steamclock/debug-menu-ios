@@ -26,7 +26,8 @@ The menu never stores your values. Rows read and write your values through `get`
 
 ## Requirements
 
-- iOS 17 or later.
+- iOS 17 or later to use the menu. The package itself links into apps targeting iOS 15 or later: the
+  whole API is marked `@available(iOS 17, *)`, so gate it with `if #available(iOS 17, *)` in older apps.
 - Xcode 16 or later (swift-tools 6.0). The package builds in Swift 6 language mode.
 - No other dependencies.
 

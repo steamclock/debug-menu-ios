@@ -2,6 +2,7 @@ import CryptoKit
 import Foundation
 
 /// Whether the menu asks for a password before it opens. `.none`, the default, never asks.
+@available(iOS 17, *)
 public enum DebugMenuAccessPolicy: Sendable {
     /// No password.
     case none

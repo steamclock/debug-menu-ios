@@ -7,6 +7,7 @@ import Observation
 /// outside the menu, call `DebugMenuChanges.shared.send()` so an open menu reads it again.
 ///
 /// Menus use `shared` unless you give them another instance.
+@available(iOS 17, *)
 @MainActor
 @Observable
 public final class DebugMenuChanges {

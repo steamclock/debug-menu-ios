@@ -9,6 +9,7 @@ private let logger = Logger(subsystem: "DebugMenu", category: "DebugMenuView")
 ///
 /// The menu is rebuilt from `content` each time the view updates, so `if` and `for` in the menu follow the app's
 /// state. Rows change values through `DebugMenu.dispatch(_:)`, the same path a remote uses.
+@available(iOS 17, *)
 public struct DebugMenuView: View {
     static let title = "Debug Menu"
 
@@ -32,6 +33,7 @@ public struct DebugMenuView: View {
 }
 
 /// Builds the menu and shows its top-level screen.
+@available(iOS 17, *)
 private struct DebugMenuRoot: View {
     let content: @MainActor () -> DebugMenuGroup
 
@@ -46,6 +48,7 @@ private struct DebugMenuRoot: View {
 }
 
 /// One screen of the menu: the top level, or a submenu.
+@available(iOS 17, *)
 struct DebugMenuScreen: View {
     let title: String
     let nodes: [DebugMenuNode]
@@ -63,6 +66,7 @@ struct DebugMenuScreen: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugNodeList: View {
     let nodes: [DebugMenuNode]
     let menu: DebugMenu
@@ -74,6 +78,7 @@ private struct DebugNodeList: View {
     }
 }
 
+@available(iOS 17, *)
 private struct DebugNodeView: View {
     let node: DebugMenuNode
     let menu: DebugMenu
@@ -104,6 +109,7 @@ private struct DebugNodeView: View {
     }
 }
 
+@available(iOS 17, *)
 extension DebugMenu {
     /// Dispatches a command from the UI and logs a failure, since most rows have nowhere to show one.
     @discardableResult

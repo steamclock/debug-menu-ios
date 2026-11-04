@@ -1,6 +1,7 @@
 import Foundation
 
 /// Something to do to a row, addressed by its ID from `DebugMenuSnapshot`. The menu UI and a remote both use these.
+@available(iOS 17, *)
 public enum DebugCommand: Codable, Sendable, Equatable {
     /// Sets a toggle row's value.
     case setToggle(rowID: String, isOn: Bool)
@@ -24,6 +25,7 @@ public enum DebugCommand: Codable, Sendable, Equatable {
 }
 
 /// Why a command failed.
+@available(iOS 17, *)
 public enum DebugCommandError: Error, Codable, Sendable, Equatable {
     /// No row has this ID.
     case unknownRow(rowID: String)
@@ -42,6 +44,7 @@ public enum DebugCommandError: Error, Codable, Sendable, Equatable {
 }
 
 /// The outcome of a command.
+@available(iOS 17, *)
 public enum DebugCommandResult: Codable, Sendable, Equatable {
     /// The command was applied.
     case success
@@ -49,6 +52,7 @@ public enum DebugCommandResult: Codable, Sendable, Equatable {
     case failure(DebugCommandError)
 }
 
+@available(iOS 17, *)
 public extension DebugMenu {
     /// Applies a command to the row it addresses. Async actions are awaited, and their errors returned.
     ///
@@ -66,6 +70,7 @@ public extension DebugMenu {
     }
 }
 
+@available(iOS 17, *)
 private extension DebugMenu {
     @MainActor
     func apply(_ command: DebugCommand) async throws(DebugCommandError) {
@@ -100,6 +105,7 @@ private extension DebugMenu {
     }
 }
 
+@available(iOS 17, *)
 private extension DebugPickerConfiguration {
     @MainActor
     func applyCustomURL(_ url: URL, rowID: String) throws(DebugCommandError) {
