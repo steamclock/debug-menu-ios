@@ -55,7 +55,8 @@ private struct DebugToggleRow: View {
 
     var body: some View {
         let _ = changes.generation
-        Toggle(isOn: Binding(get: get, set: request)) {
+        // A closure, not `set: request`: Swift 6.3.3 (Xcode 26) crashes in IRGen converting the method reference.
+        Toggle(isOn: Binding(get: get, set: { request($0) })) {
             DebugRowTitle(item: item)
         }
         .disabled(item.availability.isDisabled())
