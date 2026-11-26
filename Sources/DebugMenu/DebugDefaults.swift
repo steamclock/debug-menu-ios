@@ -57,7 +57,7 @@ public extension DebugToggle {
     }
 }
 
-/// One log for `DebugButton.sendLogs(logs:destination:)`.
+/// One log for `DebugButton.sendLogs(title:logs:destination:)`.
 public enum DebugLogFile: Sendable, Equatable {
     /// A log file already on disk.
     case file(URL)
@@ -65,7 +65,7 @@ public enum DebugLogFile: Sendable, Equatable {
     case data(Data, fileName: String)
 }
 
-/// Where `DebugButton.sendLogs(logs:destination:)` sends the logs.
+/// Where `DebugButton.sendLogs(title:logs:destination:)` sends the logs.
 public struct DebugLogDestination: Sendable {
     let send: @MainActor @Sendable ([DebugLogFile]) async throws -> Void
 
@@ -76,13 +76,14 @@ public struct DebugLogDestination: Sendable {
 }
 
 public extension DebugButton {
-    /// A "Send logs" button. When tapped, `logs` gathers the app's logs and `destination` sends them.
-    /// An error thrown by either shows on the row.
+    /// A "Send logs" button, or `title` if you pass one. When tapped, `logs` gathers the app's logs and
+    /// `destination` sends them. An error thrown by either shows on the row.
     static func sendLogs(
+        title: String? = nil,
         logs: @escaping @MainActor @Sendable () async throws -> [DebugLogFile],
         destination: DebugLogDestination
     ) -> DebugButton {
-        DebugButton(DefaultTitle.sendLogs) {
+        DebugButton(title ?? DefaultTitle.sendLogs) {
             try await destination.send(logs())
         }
     }

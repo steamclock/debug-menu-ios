@@ -319,7 +319,8 @@ DebugButton.sendLogs(logs: { settings.logFiles }, destination: .shareSheet)
   sign out and use a new server. See [Environments](#environments) below.
 - `DebugToggle.advancedLogging` is an "Advanced logging" toggle over your own setting.
 - `DebugButton.sendLogs` is a "Send logs" button. Your `logs` closure returns `DebugLogFile`s:
-  `.file(URL)` for a file on disk, or `.data(Data, fileName:)` for logs in memory.
+  `.file(URL)` for a file on disk, or `.data(Data, fileName:)` for logs in memory. Pass `title:` to
+  label it something else, like "Share logs".
 
 ### Environments
 
