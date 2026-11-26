@@ -45,6 +45,8 @@ final class DebugDefaultsTests: XCTestCase {
         XCTAssertEqual(options.map(\.subtitle), ["https://api.example.com", "https://staging.example.com"])
         XCTAssertFalse(acceptsCustomURL)
         XCTAssertEqual(DebugMenu { DebugToggle("Other", get: { true }, set: { _ in }) }.snapshot().nodes.count, 1)
+        XCTAssertEqual(DebugMenu { DebugButton.sendLogs(title: "Share logs", logs: { [] }, destination: .custom { _ in }) }
+            .snapshot().nodes.map(\.id), ["Share logs"])
 
         _ = await menu.dispatch(.selectOption(rowID: "Environment", optionID: "staging"))
         _ = await menu.dispatch(.setToggle(rowID: "Advanced logging", isOn: true))
